@@ -1,0 +1,22 @@
+{
+  "name": "psycast",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "qrcodes": "node scripts/generate-qrcodes.mjs",
+    "brochure": "node scripts/generate-brochure.mjs",
+    "build": "node scripts/generate-qrcodes.mjs && astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
+    "astro": "^7.1.3",
+    "puppeteer-core": "^25.3.0",
+    "qrcode": "^1.5.4"
+  }
+}

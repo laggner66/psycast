@@ -1,0 +1,76 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import { slugify } from "../lib/slugify.js";
+
+interface Props {
+  title: string;
+  metaDescription: string;
+  category: string;
+  tags: string[];
+  originalUrl: string;
+  readingTime?: string;
+  heroImage?: string;
+  slug: string;
+}
+const { title, metaDescription, category, tags, originalUrl, readingTime, heroImage, slug } = Astro.props;
+const categorySlug = slugify(category);
+const qrSrc = `/qrcodes/${slug}.png`;
+---
+<BaseLayout title={`${title} · psycast`} description={metaDescription} image={heroImage}>
+  <article class="article">
+    <p class="crumbs"><a href="/">Archiv</a> / <a href={`/kategorie/${categorySlug}`}>{category}</a></p>
+    {heroImage && <img class="hero" src={heroImage} alt={title} loading="lazy" />}
+    <h1>{title}</h1>
+    <p class="meta">
+      {category}{readingTime && <> · {readingTime}</>}
+    </p>
+    <div class="body">
+      <slot />
+    </div>
+    {tags?.length > 0 && (
+      <ul class="tags">
+        {tags.map((t) => <li>{t}</li>)}
+      </ul>
+    )}
+    <div class="provenance">
+      <p>
+        Ursprünglich veröffentlicht im
+        <a href={originalUrl} target="_blank" rel="noopener noreferrer">Counselorakademie-Blog</a>.
+      </p>
+      <img class="qr" src={qrSrc} alt={`QR-Code zu ${title}`} width="120" height="120" loading="lazy" />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .crumbs { color: var(--grey); font-size: 0.9rem; margin-bottom: 1rem; }
+  .crumbs a { color: var(--grey); text-decoration: none; }
+  .hero { width: 100%; max-height: 380px; object-fit: cover; border-radius: 10px; margin-bottom: 1.5rem; }
+  h1 { font-size: 2rem; line-height: 1.25; margin: 0 0 0.5rem; }
+  .meta { color: var(--brown); font-weight: 600; margin-bottom: 1.5rem; }
+  .body { font-size: 1.05rem; }
+  .body :global(h2) { color: var(--green); margin-top: 2rem; }
+  .body :global(a) { color: var(--green); }
+  .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; list-style: none; padding: 0; margin: 2rem 0 0; }
+  .tags li {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.85rem;
+    color: var(--grey);
+  }
+  .provenance {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    color: var(--grey);
+    font-size: 0.9rem;
+  }
+  .qr { border-radius: 6px; }
+</style>

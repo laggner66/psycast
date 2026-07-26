@@ -1,0 +1,85 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  image?: string;
+}
+const { title, description, canonical, image } = Astro.props;
+const site = "https://psycast.netlify.app";
+const url = canonical ?? new URL(Astro.url.pathname, site).toString();
+---
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={url} />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={url} />
+    {image && <meta property="og:image" content={image} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/">psycast</a>
+      <span class="tagline">Blog-Archiv von Thomas Laggner · Counselorakademie</span>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <p>
+        Dieses Archiv fasst ausgewählte Artikel des Blogs der
+        <a href="https://www.counselorakademie.com/blog" target="_blank" rel="noopener noreferrer">Counselorakademie</a>
+        zusammen. Es ersetzt keine Psychotherapie, medizinische Behandlung oder Krisenhilfe.
+      </p>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --green: #2f6f68;
+    --brown: #b87a5b;
+    --dark: #17211f;
+    --grey: #53615d;
+    --bg: #f7f5f0;
+    --card: #fffdfa;
+    --border: #d9ded8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--dark);
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+  }
+  a { color: var(--green); }
+  .site-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--card);
+    flex-wrap: wrap;
+  }
+  .brand { font-weight: 800; font-size: 1.4rem; color: var(--dark); text-decoration: none; }
+  .tagline { color: var(--grey); font-size: 0.95rem; }
+  main { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  .site-footer {
+    border-top: 1px solid var(--border);
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--grey);
+    font-size: 0.85rem;
+  }
+</style>
