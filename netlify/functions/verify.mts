@@ -30,13 +30,15 @@ export default async (req: Request, _context: Context) => {
   );
 
   const next = url.searchParams.get("next");
-  const redirectTo = next && next.startsWith("/") ? next : "/";
+  const redirectPath = next && next.startsWith("/") ? next : "/";
+  const redirectTo = new URL(redirectPath, url.origin);
+  redirectTo.search = "";
 
-  return new Response(null, {
-    status: 302,
-    headers: {
-      Location: redirectTo,
-      "Set-Cookie": `psycast_session=${session}; Path=/; Max-Age=${THIRTY_DAYS}; HttpOnly; Secure; SameSite=Lax`,
-    },
-  });
+  const res = new Response(null, { status: 302 });
+  res.headers.set("Location", redirectTo.toString());
+  res.headers.append(
+    "Set-Cookie",
+    `psycast_session=${session}; Path=/; Max-Age=${THIRTY_DAYS}; HttpOnly; Secure; SameSite=Lax`
+  );
+  return res;
 };
