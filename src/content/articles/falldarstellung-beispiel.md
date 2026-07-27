@@ -1,0 +1,24 @@
+---
+title: "Falldarstellung (Beispiel)"
+category: "LSB Praxis"
+tags: ["fallsupervision"]
+originalUrl: "https://www.counselorakademie.com/post/falldarstellung-beispiel"
+readingTime: "2 Min."
+heroImage: "https://static.wixstatic.com/media/b5ee16_a27ddd0cac734e80ab283f55a94a7594~mv2.webp"
+excerpt: "Stammdaten :Geschlecht: WeiblichAlter: 42 JahreBeruf: Selbständige UnternehmerinLebensform: Alleinerziehend, ein Kind im Teenageralter..."
+metaDescription: "Stammdaten :Geschlecht: WeiblichAlter: 42 JahreBeruf: Selbständige UnternehmerinLebensform: Alleinerziehend, ein Kind im Teenageralter..."
+publishDate: "2024-10-22T20:09:30.877Z"
+---
+
+1. **Stammdaten**:Geschlecht: WeiblichAlter: 42 JahreBeruf: Selbständige UnternehmerinLebensform: Alleinerziehend, ein Kind im Teenageralter
+1. **Entstehungszusammenhang der Beratung**:Die Klientin kam aufgrund einer Empfehlung einer Freundin zur Beratung. Die Kontaktaufnahme erfolgte per E-Mail, nachdem sie von zunehmender beruflicher und familiärer Belastung berichtet hatte.
+1. **Vorstellungsgrund**:Die Klientin berichtete von anhaltender Erschöpfung und Schwierigkeiten, berufliche Herausforderungen und die Erziehung ihrer Tochter in Einklang zu bringen. Sie fühlt sich ständig unter Druck und sucht nach Unterstützung, um wieder mehr Lebensqualität zu erlangen.
+1. **Aktuelle Problemstellung und Problemverlauf**:Die aktuelle Situation der Klientin ist geprägt von einem Gefühl der ständigen Überforderung. Sie schildert eine zunehmende Distanz zu ihrer Tochter und eine sinkende Leistungsfähigkeit im beruflichen Alltag. Der Leidensdruck wuchs in den letzten Monaten, insbesondere durch die Anforderungen ihres Unternehmens und den Wunsch, eine gute Mutter zu sein.
+1. **Anamnese und andere Problemgeschichten**:In der Lebensgeschichte der Klientin lassen sich immer wiederkehrende Muster von Perfektionismus und einem hohen Verantwortungsgefühl erkennen. Bereits in ihrer Kindheit übernahm sie viel Verantwortung für ihre Geschwister. Beruflich ist sie erfolgreich, jedoch auf Kosten ihrer eigenen Gesundheit und ihrer persönlichen Bedürfnisse. Ein bedeutender Meilenstein war die Entscheidung, sich selbständig zu machen, was ihr zunächst viel Selbstbewusstsein verliehen hat, nun aber zunehmend zur Belastung wird.
+1. **Überlegungen zur Diagnose und Indikation**:Das Störungsbild kann am ehesten einer Z-Diagnose zugeordnet werden, insbesondere im Sinne einer Belastungsreaktion und persönlichen Lebenskrise (ICD-10: Z73.0 - Burnout-Phänomen). Die Problematik ist nachvollziehbar und resultiert aus einem Missverhältnis zwischen Anforderungen und verfügbaren Ressourcen, sowohl beruflich als auch privat.
+1. **Setting und Vereinbarungen**:Es wurde ein zweiwöchiges Beratungssetting vereinbart, um der Klientin regelmäßig Raum zur Reflexion zu bieten. Im Fokus steht die Förderung von Resilienz und die Entwicklung konkreter Strategien zur Selbstfürsorge. Ein Beratungsvertrag wurde abgeschlossen, der auch die Definition konkreter, erreichbarer Ziele beinhaltete.
+1. **Verlauf und Entwicklung der Beratungsbeziehung und des Prozesses**:Die Klientin zeigte sich offen und engagiert. Zu Beginn war ihre Erwartungshaltung stark auf schnelle Lösungen ausgerichtet, was in den ersten Sitzungen thematisiert wurde. Sie hat begonnen, ihre Erwartungen realistischer anzupassen und mehr Geduld mit sich selbst zu entwickeln. Eine wichtige Entwicklung im Prozess war das Erkennen der eigenen Bedürfnisse und das Setzen erster kleinerer Grenzen im beruflichen Umfeld. Die Klientin sprach positiv auf Methoden der systemischen Beratung an, wie etwa das Entwickeln von neuen Perspektiven und das Erarbeiten von Handlungsalternativen.
+1. **Schlüssel-Situationen und charakteristische Szenen der Beratung**:Eine Schlüsselsituation war, als die Klientin eine innere Dialogübung durchführte, in der sie sich selbst erlaubte, Fehler zu machen. Diese Szene veranschaulichte ihre tief verwurzelte Angst, nicht genug zu sein. Das Nachspielen dieser Situation half ihr, erste Schritte in Richtung Selbstakzeptanz zu gehen und ihren Perfektionismus loszulassen.
+1. **Derzeitiger Stand der Beratung, Ausblick, Erwartungen, Prognose**:Die Beratung ist noch im Gange. Die Klientin hat erste Schritte unternommen, um sich beruflich zu entlasten, indem sie eine Teilzeitkraft eingestellt hat. Die Erwartungen für die kommenden Sitzungen beinhalten das weitere Erlernen von Techniken zur Stressbewältigung sowie das Stärken der Mutter-Tochter-Beziehung. Langfristig wird erwartet, dass die Klientin ihre Prioritäten klarer setzen kann und sich dadurch ein verbessertes Wohlbefinden einstellt.
+1. **Nach Beratungsende**:-Noch offen, da die Beratung aktuell fortgeführt wird.-
+1. **Konkrete Fragestellung für Supervision**:Wie kann ich die Klientin dabei unterstützen, realistische Ziele zu formulieren und ihre Selbstakzeptanz weiter zu stärken, insbesondere im Hinblick auf ihre Rolle als Mutter und Unternehmerin?

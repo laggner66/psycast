@@ -121,14 +121,23 @@ const tocPagesHtml = tocPages
   )
   .join("\n");
 
+// Cards are hard-clamped to a single A5 page (fixed height + overflow
+// hidden as a safety net) so the TOC page numbers computed above always
+// match the real render. Title/excerpt are also pre-truncated so clipping
+// essentially never triggers in practice.
+function clip(text, max) {
+  if (!text) return "";
+  return text.length <= max ? text : text.slice(0, max - 1).trimEnd() + "…";
+}
+
 const cardsHtml = groups
   .flatMap((g) => g.articles)
   .map(
     (e) => `
     <section class="card">
-      <h2>${e.data.title ?? e.slug}</h2>
+      <h2>${clip(e.data.title ?? e.slug, 90)}</h2>
       <p class="cat">${e.data.category ?? ""}</p>
-      <p class="excerpt">${e.data.excerpt ?? ""}</p>
+      <p class="excerpt">${clip(e.data.excerpt ?? "", 170)}</p>
       <div class="qr-row">
         <img src="data:image/png;base64,${e.qrBase64}" alt="QR" />
         <span class="url">psycast.netlify.app/artikel/${e.slug}</span>
@@ -146,7 +155,7 @@ const html = `<!doctype html>
   .cover { page-break-after: always; text-align: center; padding-top: 40mm; }
   .cover h1 { font-size: 28pt; color: #2f6f68; margin-bottom: 4mm; }
   .cover p { font-size: 11pt; color: #53615d; }
-  .toc-page { page-break-after: always; padding-top: 2mm; }
+  .toc-page { page-break-after: always; padding-top: 2mm; height: 176mm; overflow: hidden; }
   .toc-page:first-of-type::before {
     content: "Inhaltsverzeichnis"; display: block; font-size: 16pt; color: #2f6f68;
     margin-bottom: 6mm; font-weight: bold;
@@ -158,8 +167,10 @@ const html = `<!doctype html>
     padding: 1mm 0; border-bottom: 0.2mm dotted #cbd3d0; }
   .toc-title { flex: 1; }
   .toc-page-no { color: #53615d; }
-  .card { page-break-inside: avoid; page-break-after: always; padding-top: 4mm; }
-  .card h2 { font-size: 15pt; color: #17211f; margin: 0 0 2mm; line-height: 1.3; }
+  .card { page-break-inside: avoid; page-break-after: always; padding-top: 4mm;
+    height: 176mm; overflow: hidden; }
+  .card h2 { font-size: 15pt; color: #17211f; margin: 0 0 2mm; line-height: 1.3;
+    max-height: 13mm; overflow: hidden; }
   .card .cat { font-size: 9pt; color: #b87a5b; font-weight: bold; text-transform: uppercase; margin: 0 0 4mm; }
   .card .excerpt { font-size: 10.5pt; line-height: 1.5; }
   .qr-row { margin-top: 8mm; display: flex; align-items: center; gap: 5mm; }

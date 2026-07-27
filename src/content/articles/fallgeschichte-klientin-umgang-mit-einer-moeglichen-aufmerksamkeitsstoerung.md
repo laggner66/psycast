@@ -1,0 +1,58 @@
+---
+title: "Fallgeschichte: Klientin – Umgang mit einer möglichen Aufmerksamkeitsstörung"
+category: "Fallgeschichten"
+tags: ["fallsupervision", "Gesprächsanalyse", "Supervision"]
+originalUrl: "https://www.counselorakademie.com/post/fallgeschichte-klientin-umgang-mit-einer-möglichen-aufmerksamkeitsstörung"
+readingTime: "6 Min."
+excerpt: "Dialog zwischen Klientin und Berater Berater : \"Hallo Klientin, schön, dass du heute da bist. Was führt dich zu mir?\" Klientin : \"Ich..."
+metaDescription: "Dialog zwischen Klientin und Berater Berater : \"Hallo Klientin, schön, dass du heute da bist. Was führt dich zu mir?\" Klientin : \"Ich..."
+publishDate: "2024-10-24T22:21:48.615Z"
+---
+
+**Dialog zwischen Klientin und Berater**
+
+**Berater**: "Hallo Klientin, schön, dass du heute da bist. Was führt dich zu mir?"
+
+**Klientin**: "Ich habe oft das Gefühl, dass ich mit meiner Aufmerksamkeit nicht hinterherkomme. Es fällt mir schwer, mich zu konzentrieren, besonders in der Schule oder bei Aufgaben, die mich nicht wirklich interessieren. Ich denke, dass es vielleicht eine Aufmerksamkeitsstörung sein könnte."
+
+**Berater**: "Das verstehe ich. Wann hast du diese Schwierigkeiten zum ersten Mal bemerkt?"
+
+**Klientin**: "Eigentlich schon in der Schule. Ich habe immer das Gefühl gehabt, dass ich viel mehr Energie aufwenden muss, um bei Dingen dranzubleiben. In der einer alternativen Schule war das nicht so schlimm, weil ich dort mehr Freiheiten hatte. Aber im Gymnasium wurde es richtig hart für mich."
+
+**Berater**: "Was genau fiel dir dort besonders schwer?"
+
+**Klientin**: "Es war vor allem der Leistungsdruck. Alles musste so schnell gehen, und ich habe mich oft überfordert gefühlt. Es gab wenig Unterstützung und viel strikte Bewertung. Ich habe mich oft gefragt, warum das für andere scheinbar kein Problem ist, aber für mich so schwer."
+
+**Berater**: "Das klingt sehr herausfordernd. Es scheint, als wäre der Wechsel vom freien Lernumfeld der einer alternativen Schule zu einem strukturierten System mit viel Druck wirklich schwierig gewesen. Wie gehst du jetzt in deiner Ausbildung und in der Abendschule damit um?"
+
+**Klientin**: "Ich versuche es, aber es ist wirklich schwer. Nach der Arbeit bin ich oft zu müde, um noch effektiv zu lernen. Es fühlt sich an, als würde ich ständig gegen eine Wand laufen."
+
+**Berater**: "Das ist nachvollziehbar. Wir könnten daran arbeiten, Wege zu finden, wie du deinen Alltag besser strukturieren kannst, um dich weniger belastet zu fühlen und deine Konzentration zu verbessern."
+
+**Hintergrund** Klientin ist eine 20-jährige Auszubildende zur Bürokauffrau, die berufsbegleitend die Abendschule besucht, um ihre Matura (das österreichische Abitur) nachzuholen. Ihre Motivation, die Matura abzuschließen, liegt darin, ihre beruflichen Möglichkeiten zu erweitern und ihren Traum, Lehramt zu studieren, zu verwirklichen. Klientin möchte nicht nur ihre schulische Ausbildung abschließen, sondern auch ein Vorbild für andere junge Menschen sein, die ähnliche Herausforderungen erlebt haben. Seit ihrer Schulzeit fühlt sie sich oft überfordert, hat Probleme damit, sich zu konzentrieren und dem Unterricht zu folgen, und hat Schwierigkeiten, einfache Aufgaben zu bewältigen. Sie selbst vermutet, dass sie möglicherweise an einer Aufmerksamkeitsdefizitstörung (ADS) leidet, jedoch ohne die Hyperaktivitskomponente.
+
+In dieser Umgebung bemerkte sie schnell, dass der Leistungsdruck und die Anforderungen nicht mehr mit ihrem Lernstil übereinstimmten. Beispielsweise wurde im Gymnasium ein hohes Tempo erwartet, das ihr Schwierigkeiten bereitete. Die Menge der Hausaufgaben und der Bedarf, sich auf häufige Prüfungen vorzubereiten, überforderte sie zunehmend. Zudem fiel es ihr schwer, den stark strukturierten Unterricht zu bewältigen, da nur wenig Raum für individuelle Unterstützung oder die eigene Kreativität gegeben war. Beispielsweise fiel es ihr schwer, dem hohen Tempo des Unterrichts zu folgen, und sie empfand den Mangel an individueller Unterstützung als belastend. Zudem hatte sie Schwierigkeiten, sich an die strikten Leistungsbewertungen anzupassen, was ihr Selbstvertrauen stark beeinträchtigte. Sie entschied sich, die Schule abzubrechen und eine Ausbildung zur Bürokauffrau zu machen, hauptsächlich aufgrund von Kontakten ihres Vaters.
+
+**Aktuelle Situation und Herausforderungen** Aktuell befindet sich Klientin in einer beruflichen Ausbildung und besucht zusätzlich die Abendschule, was ihr weitere Schwierigkeiten bereitet. Beispielsweise fällt es ihr schwer, nach einem anstrengenden Arbeitstag noch die Energie für den Unterricht aufzubringen, und sie fühlt sich oft überfordert von der Doppelbelastung. Die Anforderungen der Berufsschule und die zusätzlichen Prüfungen der Abendschule lassen ihr wenig Zeit zur Erholung, was ihre Konzentrationsfähigkeit weiter beeinträchtigt. Besonders der Wechsel von der freien Lernkultur der einer alternativen Schule zu einem strukturierten, leistungsorientierten Umfeld stellte eine große Herausforderung dar. Sie kämpft mit Konzentrationsproblemen, sowohl in der Berufsschule als auch bei der Vorbereitung auf die Matura, und merkt, dass selbst bei geringem äußeren Druck der innere Leistungsanspruch stark ist.
+
+**Diagnostische Überlegungen** Für Klientin könnten sowohl F- als auch Z-Diagnosen in Betracht gezogen werden. Eine Aufmerksamkeitsdefizitstörung (ADS) könnte sich durch verschiedene Symptome äußern, die im Alltag deutlich erkennbar sind. Diese beinhalten Schwierigkeiten, die Aufmerksamkeit über längere Zeit aufrechtzuerhalten, Vergesslichkeit, Probleme bei der Organisation von Aufgaben, leichte Ablenkbarkeit sowie Fehler durch Unachtsamkeit. Eine mögliche F-Diagnose könnte F98.8 (andere näher bezeichnete Verhaltens- und emotionale Störungen mit Beginn in der Kindheit und Jugend) sein, um ihre Konzentrationsprobleme und Aufmerksamkeitsstörungen zu erfassen. Diese Diagnose könnte sich in ihrem Alltag beispielsweise darin äußern, dass sie häufig Schwierigkeiten hat, einfache Aufgaben abzuschließen, weil sie immer wieder durch äußere Reize abgelenkt wird. Auch das ständige Verlegen von wichtigen Gegenständen, wie Schlüssel oder Handy, beeinträchtigt ihre tägliche Routine und erhöht ihren Stresspegel. Ergänzend könnte auch eine Z-Diagnose wie Z56.3 (Unzufriedenheit mit den Arbeitsbedingungen) relevant sein, um den Stress und die Herausforderungen in ihrem beruflichen Kontext zu berücksichtigen. Die ständige Doppelbelastung von Ausbildung und Abendschule führt oft zu Überforderung, was sich in körperlicher Erschöpfung und Gereiztheit äußert und das allgemeine Wohlbefinden der Klientin stark beeinträchtigt. Diese Auswirkungen machen eine gezielte Unterstützung erforderlich.
+
+**Yaloms Perspektive** Irvin Yalom, als Vertreter der existenziellen Psychotherapie, würde vermutlich einen Ansatz wählen, der darauf abzielt, der Klientin auf einer tieferen, existenziellen Ebene zu begegnen. Seine Herangehensweise könnte die folgenden Aspekte beinhalten:
+
+1. **Therapeutische Beziehung als Basis**: Yalom legt großen Wert auf die therapeutische Beziehung. Er würde eine starke, authentische Verbindung zur Klientin aufbauen, die ihr Sicherheit gibt, um ihre Herausforderungen zu teilen.
+1. **Existenzielle Themen und Sinnsuche**: Yalom würde der Klientin helfen, ihre Entscheidungen und die damit verbundenen Ängste zu reflektieren. Themen wie Freiheit, Verantwortung und Sinn würden dabei eine Rolle spielen. Die Auseinandersetzung mit diesen Themen könnte ihre Autonomie und ihre Fähigkeit zur bewussten Entscheidungsfindung stärken.
+1. **Emotionale Akzeptanz**: Yalom könnte die Klientin unterstützen, schwierige Emotionen wie Versagensängste zu akzeptieren. Dadurch würde sie lernen, ihre Anspannung zu verringern und mit mehr Gelassenheit auf Herausforderungen zu reagieren.
+1. **Vier Grundgegebenheiten des Lebens**: Yalom würde häufig Themen wie Tod, Freiheit, Isolation und Sinnlosigkeit aufgreifen, um ein tieferes Verständnis zu fördern. Dies könnte der Klientin helfen, bewusster und sinnerfüllter zu handeln.
+
+**Ressourcen und therapeutische Ansätze** Ein wichtiger Aspekt von Helenes Geschichte ist ihr positiver Zugang zur einer alternativen Schule, der ihr gezeigt hat, wie befreiend ein Lernen ohne Leistungsdruck sein kann. Klientin ist offen für psychotherapeutische Unterstützung, um ihre Konzentrationsprobleme anzugehen und Methoden zu erlernen, die ihr helfen können, mit ihren inneren Ansprüchen besser umzugehen.
+
+**Interventionsplanung** Eine gezielte Interventionsplanung für Klientin sollte eine Kombination aus verschiedenen therapeutischen Ansätzen beinhalten, die nach Priorität geordnet werden, um eine strukturierte Anwendung im therapeutischen Prozess zu gewährleisten:
+
+1. **Meditation und Achtsamkeit**: Regelmäßige Meditationseinheiten könnten Klientin helfen, ihre Gedanken zu beruhigen und eine entspanntere Haltung gegenüber Herausforderungen zu entwickeln. Achtsamkeitsübungen können insbesondere dabei unterstützen, den inneren Stress zu reduzieren und das Bewusstsein für den Moment zu stärken.
+1. **Mentales Training**: Durch mentales Training kann Klientin Techniken erlernen, die ihre Konzentrationsfähigkeit und Selbstwirksamkeit stärken. Visualisierungsübungen und das Arbeiten mit positiven Glaubenssätzen könnten helfen, ihre Leistungsziele ohne übermäßigen Druck zu verfolgen.
+1. **Körperliche Entspannungsverfahren**: Techniken wie Progressive Muskelentspannung oder Atemübungen könnten ergänzend zur Therapie eingesetzt werden, um die körperliche Anspannung zu verringern, die oft mit Konzentrationsschwierigkeiten einhergeht.
+1. **Ressourcenaktivierung**: Der positive Zugang zur einer alternativen Schule zeigt, dass Klientin in einem wertschätzenden Umfeld aufblüht. Dies könnte auch in der Therapie durch die Aktivierung von Ressourcen und gezielte positive Lernerfahrungen genutzt werden.
+
+**Motto-Ziel** Für Klientin könnte es hilfreich sein, ein Motto-Ziel nach dem Zürcher Ressourcenmodell (ZRM) zu entwickeln, um ihre Motivation und ihr Durchhaltevermögen zu stärken. Ein solches Motto-Ziel könnte lauten: "Mit Leichtigkeit und Freude lerne ich jeden Tag ein Stück mehr und nutze meine Stärken, um meine Ziele zu erreichen." Dieses Motto-Ziel nach dem ZRM dient dazu, Helenes Lernprozess positiv zu gestalten und die Freude am Fortschritt in den Vordergrund zu stellen. Das ZRM legt Wert auf die emotionale Verbindung zum Ziel und hilft Klientin, aus positiven Emotionen heraus nachhaltig motiviert zu bleiben.
+
+**Fazit** Helenes Fall verdeutlicht die Schwierigkeiten, die ein Übergang von einer freien, wertschätzenden Lernumgebung hin zu einem leistungsorientierten System mit sich bringen kann. Der Fokus der therapeutischen Arbeit sollte darauf liegen, Klientin darin zu unterstützen, ihre Lernziele zu erreichen, ohne dabei ihre psychische Gesundheit zu gefährden. Die Integration positiver Lernerfahrungen und die Stärkung ihrer Ressourcen könnten entscheidend für ihren weiteren Weg sein. Zukünftige Schritte sollten eine klare Strukturierung der therapeutischen Maßnahmen beinhalten, wie regelmäßige Achtsamkeitseinheiten, mentales Training und die fortlaufende Aktivierung von Ressourcen. Ein detaillierter Therapieplan mit messbaren Zwischenzielen könnte Klientin zusätzlich helfen, ihre Fortschritte nachzuverfolgen und motiviert zu bleiben. Der Fokus der therapeutischen Arbeit sollte darauf liegen, Klientin darin zu unterstützen, ihre Lernziele zu erreichen, ohne dabei ihre psychische Gesundheit zu gefährden. Die Integration positiver Lernerfahrungen und die Stärkung ihrer Ressourcen könnten entscheidend für ihren weiteren Weg sein.
