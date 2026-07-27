@@ -31,11 +31,24 @@ export default async (req: Request, _context: Context) => {
 
   const next = url.searchParams.get("next");
   const redirectPath = next && next.startsWith("/") ? next : "/";
-  const redirectTo = new URL(redirectPath, url.origin);
-  redirectTo.search = "";
 
-  const res = new Response(null, { status: 302 });
-  res.headers.set("Location", redirectTo.toString());
+  // Netlify's routing for custom `config.path` functions appends the
+  // original request's query string to any Location header we return, so a
+  // plain 302 can't be used here (it would leak the token into the target
+  // URL). Serving a tiny HTML page with a client-side redirect sidesteps
+  // that platform behavior entirely.
+  const escapedPath = redirectPath.replace(/"/g, "&quot;");
+  const html = `<!doctype html><html lang="de"><head><meta charset="utf-8">
+<meta http-equiv="refresh" content="0; url=${escapedPath}">
+<title>Weiterleitung …</title></head>
+<body>Du wirst weitergeleitet … <a href="${escapedPath}">Klicke hier, falls das nicht automatisch passiert.</a>
+<script>location.replace(${JSON.stringify(redirectPath)});</script>
+</body></html>`;
+
+  const res = new Response(html, {
+    status: 200,
+    headers: { "Content-Type": "text/html; charset=utf-8" },
+  });
   res.headers.append(
     "Set-Cookie",
     `psycast_session=${session}; Path=/; Max-Age=${THIRTY_DAYS}; HttpOnly; Secure; SameSite=Lax`
