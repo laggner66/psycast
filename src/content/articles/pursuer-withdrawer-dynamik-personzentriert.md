@@ -1,6 +1,7 @@
 ---
 title: "Pursuer–Withdrawer-Dynamik in der personzentrierten Theorie"
 category: "Paartherapie & Beziehung"
+access: "public"
 tags: ["Personzentrierte Therapie", "Paarberatung", "Beziehungsmuster", "Carl Rogers"]
 originalUrl: "https://www.counselorakademie.com/post/pursuer-withdrawer-dynamik-in-der-personzentrierten-theorie"
 readingTime: "5 Min. Lesezeit"

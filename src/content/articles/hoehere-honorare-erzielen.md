@@ -1,6 +1,7 @@
 ---
 title: "Höhere Honorare erzielen"
 category: "Unternehmensberatung"
+access: "public"
 tags: ["Coaching", "Beratung", "Marketing", "Honorare", "Trainer", "Positionierung", "Selbstbewusstsein", "Online-Formate", "Weiterbildung"]
 originalUrl: "https://www.counselorakademie.com/post/höhere-honorare-erzielen"
 readingTime: "3 Min."

@@ -1,6 +1,7 @@
 ---
 title: "Selbsthypnose-Anleitung nach Milton Erickson"
 category: "Fallgeschichten"
+access: "public"
 tags: []
 originalUrl: "https://www.counselorakademie.com/post/selbsthypnose-anleitung-nach-milton-erickson"
 readingTime: "2 Min."

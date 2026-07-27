@@ -1,6 +1,7 @@
 ---
 title: "Wie geschieht Veränderung in der Supervision?"
 category: "Supervision"
+access: "public"
 tags: []
 originalUrl: "https://www.counselorakademie.com/post/wie-geschieht-veränderung-in-der-supervision"
 readingTime: "2 Min."

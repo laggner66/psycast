@@ -1,0 +1,41 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const subject = encodeURIComponent("Zugang zu psycast anfragen");
+const body = encodeURIComponent(
+  "Hallo,\n\nich möchte gerne Zugang zum psycast-Archiv erhalten.\n\nMeine E-Mail-Adresse: \nName: \n\nDanke!"
+);
+const mailtoHref = `mailto:office@counselorakademie.com?subject=${subject}&body=${body}`;
+---
+<BaseLayout
+  title="Zugang anfragen — psycast"
+  description="Persönliche Einladung für das psycast-Archiv anfragen."
+>
+  <article class="request">
+    <h1>Persönliche Einladung anfragen</h1>
+    <p>
+      psycast ist ein geschütztes Archiv für eingeladene Gäste der
+      Counselorakademie. Um Zugang zu erhalten, schick uns kurz eine
+      Nachricht mit deiner E-Mail-Adresse — wir prüfen jede Anfrage
+      persönlich und schalten dich danach frei.
+    </p>
+    <a class="mailto-btn" href={mailtoHref}>Anfrage per E-Mail senden</a>
+    <p class="hint">
+      Öffnet dein E-Mail-Programm mit einer vorausgefüllten Nachricht an
+      office@counselorakademie.com. Sobald wir deine Adresse freigeschaltet
+      haben, kannst du dich auf der <a href="/login">Login-Seite</a> mit
+      einem Magic-Link anmelden.
+    </p>
+  </article>
+</BaseLayout>
+
+<style>
+  .request { max-width: 46ch; }
+  .request h1 { font-size: 1.8rem; margin-bottom: 0.75rem; }
+  .request p { color: var(--grey); }
+  .mailto-btn {
+    display: inline-block; margin: 1rem 0; background: var(--green); color: #fff;
+    border-radius: 6px; padding: 0.75rem 1.25rem; text-decoration: none; font-weight: 600;
+  }
+  .hint { font-size: 0.88rem; }
+</style>

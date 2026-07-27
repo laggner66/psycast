@@ -1,0 +1,75 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout
+  title="Login — psycast"
+  description="Login für eingeladene Gäste des psycast-Archivs."
+>
+  <article class="login">
+    <h1>Ihr persönlicher Zugang</h1>
+    <p>
+      Diese Inhalte stehen persönlich eingeladenen Gästen zur Verfügung.
+      Gib deine E-Mail-Adresse ein — falls sie freigeschaltet ist, bekommst
+      du einen Login-Link zugeschickt.
+    </p>
+
+    <form id="login-form">
+      <label for="email">E-Mail-Adresse</label>
+      <input type="email" id="email" name="email" required autocomplete="email" />
+      <button type="submit">Login-Link anfordern</button>
+    </form>
+    <p id="login-status" role="status"></p>
+
+    <div class="divider"></div>
+
+    <h2>Noch keinen Zugang?</h2>
+    <p>
+      Fordere deine persönliche Einladung an — wir prüfen jede Anfrage und
+      melden uns per E-Mail.
+    </p>
+    <a class="request-link" href="/zugang-anfragen">Persönliche Einladung anfragen</a>
+  </article>
+
+  <script>
+    const form = document.getElementById("login-form") as HTMLFormElement;
+    const status = document.getElementById("login-status")!;
+    form?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = (document.getElementById("email") as HTMLInputElement).value;
+      status.textContent = "Sende Anfrage …";
+      try {
+        const res = await fetch("/api/login-request", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+        const data = await res.json();
+        status.textContent = data.message ?? "Anfrage gesendet.";
+      } catch {
+        status.textContent = "Da ist etwas schiefgelaufen. Bitte später erneut versuchen.";
+      }
+    });
+  </script>
+</BaseLayout>
+
+<style>
+  .login { max-width: 46ch; }
+  .login h1 { font-size: 1.8rem; margin-bottom: 0.75rem; }
+  .login h2 { color: var(--green); font-size: 1.1rem; margin-top: 0; }
+  .login p { color: var(--grey); }
+  form { margin: 1.5rem 0; display: flex; flex-direction: column; gap: 0.6rem; max-width: 320px; }
+  label { font-size: 0.85rem; color: var(--grey); }
+  input {
+    padding: 0.6rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem;
+  }
+  button {
+    background: var(--green); color: #fff; border: none; border-radius: 6px;
+    padding: 0.7rem 1rem; font-size: 0.95rem; cursor: pointer;
+  }
+  #login-status { font-size: 0.9rem; color: var(--dark); min-height: 1.2em; }
+  .divider { border-top: 1px solid var(--border); margin: 2rem 0; }
+  .request-link {
+    display: inline-block; margin-top: 0.5rem; background: var(--card); border: 1px solid var(--border);
+    border-radius: 6px; padding: 0.6rem 1rem; text-decoration: none; color: var(--dark);
+  }
+</style>

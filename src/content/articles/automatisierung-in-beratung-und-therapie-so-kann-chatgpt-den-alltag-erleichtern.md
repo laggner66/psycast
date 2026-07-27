@@ -1,6 +1,7 @@
 ---
 title: "Automatisierung in Beratung und Therapie: So kann ChatGPT den Alltag erleichtern"
 category: "KI"
+access: "public"
 tags: ["Beratung", "Automatisierung", "Therapie", "Effizienz", "Dokumentation", "E-Mail-Automatisierung", "Lernmanagement", "ChatGPT", "Terminverwaltung", "Klientenfeedback"]
 originalUrl: "https://www.counselorakademie.com/post/automatisierung-in-beratung-und-therapie-so-kann-chatgpt-den-alltag-erleichtern"
 readingTime: "3 Min."

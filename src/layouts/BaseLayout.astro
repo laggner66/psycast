@@ -4,8 +4,9 @@ interface Props {
   description: string;
   canonical?: string;
   image?: string;
+  noindex?: boolean;
 }
-const { title, description, canonical, image } = Astro.props;
+const { title, description, canonical, image, noindex } = Astro.props;
 const site = "https://psycast.netlify.app";
 const url = canonical ?? new URL(Astro.url.pathname, site).toString();
 ---
@@ -16,6 +17,7 @@ const url = canonical ?? new URL(Astro.url.pathname, site).toString();
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={url} />
     <meta property="og:type" content="article" />
     <meta property="og:title" content={title} />
@@ -30,6 +32,7 @@ const url = canonical ?? new URL(Astro.url.pathname, site).toString();
     <header class="site-header">
       <a class="brand" href="/">psycast</a>
       <span class="tagline">Blog-Archiv von Thomas Laggner · Counselorakademie</span>
+      <a class="login-link" href="/login">Login</a>
     </header>
     <main>
       <slot />
@@ -98,7 +101,11 @@ const url = canonical ?? new URL(Astro.url.pathname, site).toString();
     flex-wrap: wrap;
   }
   .brand { font-weight: 800; font-size: 1.4rem; color: var(--dark); text-decoration: none; }
-  .tagline { color: var(--grey); font-size: 0.95rem; }
+  .tagline { color: var(--grey); font-size: 0.95rem; flex: 1; }
+  .login-link {
+    color: var(--dark); text-decoration: none; font-size: 0.9rem; font-weight: 600;
+    border: 1px solid var(--border); border-radius: 6px; padding: 0.35rem 0.8rem; background: var(--bg);
+  }
   main { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
   .site-footer {
     border-top: 1px solid var(--border);

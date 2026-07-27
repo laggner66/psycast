@@ -1,6 +1,7 @@
 ---
 title: "LRS verstehen, ohne sich klein zu fühlen"
 category: "Wissenswert"
+access: "public"
 tags: ["LRS", "Legasthenie", "Jugendpsychologie", "Selbstwert", "Personzentrierte Beratung"]
 originalUrl: "https://www.counselorakademie.com/post/lrs-verstehen-ohne-sich-klein-zu-fühlen"
 readingTime: "2 Min. Lesezeit"

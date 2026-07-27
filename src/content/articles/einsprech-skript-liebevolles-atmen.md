@@ -1,6 +1,7 @@
 ---
 title: "🎙️ Einsprech-Skript: Liebevolles Atmen"
 category: "Selbstmitgefühl"
+access: "public"
 tags: []
 originalUrl: "https://www.counselorakademie.com/post/einsprech-skript-liebevolles-atmen"
 readingTime: "2 Min."

@@ -1,6 +1,7 @@
 ---
 title: "Für beginnende Lebensberater oder Therapeuten: Den richtigen Ansatz finden"
 category: "LSB Praxis"
+access: "public"
 tags: ["Lebensberatung", "Supervision", "personzentrierter Ansatz", "kognitive Verhaltenstherapie", "therapeutische Beziehung"]
 originalUrl: "https://www.counselorakademie.com/post/für-beginnende-lebensberater-oder-therapeuten-den-richtigen-ansatz-finden"
 readingTime: "3 Min."

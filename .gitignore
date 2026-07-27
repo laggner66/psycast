@@ -5,6 +5,8 @@ dist/
 
 # generated at build time
 public/qrcodes/
+public/access-manifest.json
+netlify/edge-functions/gated-slugs.json
 brochure.tmp.html
 psycast-broschuere.pdf
 

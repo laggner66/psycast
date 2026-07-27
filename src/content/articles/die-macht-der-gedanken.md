@@ -1,6 +1,7 @@
 ---
 title: "Die Macht der Gedanken: Wie unser Gehirn unser Leben formt"
 category: "Positive Psychologie"
+access: "public"
 tags: ["Neuroplastizität", "Achtsamkeit", "Visualisierung", "Placebo-Effekt"]
 originalUrl: "https://www.counselorakademie.com/post/die-macht-der-gedanken-wie-unser-gehirn-unser-leben-formt"
 readingTime: "6 Min. Lesezeit"

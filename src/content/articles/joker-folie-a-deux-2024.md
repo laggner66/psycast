@@ -1,6 +1,7 @@
 ---
 title: "„Joker: Folie à Deux“ (2024)"
 category: "Privat"
+access: "public"
 tags: ["Joker", "Folie à Deux", "psychische Störungen", "Wahnvorstellungen", "Trauma", "Joaquin Phoenix", "Lady Gaga", "Filmpsychologie"]
 originalUrl: "https://www.counselorakademie.com/post/joker-folie-à-deux-2024"
 readingTime: "2 Min."

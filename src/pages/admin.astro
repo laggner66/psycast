@@ -1,0 +1,93 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout
+  title="Admin — psycast"
+  description="Verwaltung freigeschalteter E-Mail-Adressen."
+  noindex
+>
+  <article class="admin">
+    <h1>Zugänge verwalten</h1>
+    <p>
+      Admin-Key wird nur lokal im Browser verwendet, um die Funktionen
+      aufzurufen — er wird nirgends gespeichert.
+    </p>
+    <label for="admin-key">Admin-Key</label>
+    <input type="password" id="admin-key" autocomplete="off" />
+
+    <div class="row">
+      <input type="email" id="new-email" placeholder="email@beispiel.at" />
+      <button id="approve-btn">Freischalten</button>
+      <button id="revoke-btn" class="secondary">Entfernen</button>
+    </div>
+    <p id="admin-status" role="status"></p>
+
+    <button id="refresh-btn" class="secondary">Liste laden</button>
+    <ul id="email-list"></ul>
+  </article>
+
+  <script>
+    const keyInput = document.getElementById("admin-key") as HTMLInputElement;
+    const emailInput = document.getElementById("new-email") as HTMLInputElement;
+    const status = document.getElementById("admin-status")!;
+    const list = document.getElementById("email-list")!;
+
+    async function call(path: string, opts: RequestInit) {
+      const res = await fetch(path, opts);
+      return res.json();
+    }
+
+    document.getElementById("approve-btn")?.addEventListener("click", async () => {
+      const data = await call("/api/admin-approve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: emailInput.value, adminKey: keyInput.value }),
+      });
+      status.textContent = data.message;
+    });
+
+    document.getElementById("revoke-btn")?.addEventListener("click", async () => {
+      const data = await call("/api/admin-approve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: emailInput.value, adminKey: keyInput.value, action: "revoke" }),
+      });
+      status.textContent = data.message;
+    });
+
+    document.getElementById("refresh-btn")?.addEventListener("click", async () => {
+      const data = await call(
+        `/api/admin-list?adminKey=${encodeURIComponent(keyInput.value)}`,
+        { method: "GET" }
+      );
+      if (data.entries) {
+        list.innerHTML = data.entries
+          .map((e: { email: string; approvedAt?: string }) => `<li>${e.email} <span>${e.approvedAt ?? ""}</span></li>`)
+          .join("");
+      } else {
+        status.textContent = data.message ?? "Fehler beim Laden.";
+      }
+    });
+  </script>
+</BaseLayout>
+
+<style>
+  .admin { max-width: 60ch; }
+  .admin h1 { font-size: 1.6rem; }
+  .admin p { color: var(--grey); font-size: 0.9rem; }
+  label { display: block; margin-top: 1rem; font-size: 0.85rem; color: var(--grey); }
+  input {
+    padding: 0.5rem 0.7rem; border: 1px solid var(--border); border-radius: 6px;
+    font-size: 0.95rem; width: 100%; max-width: 320px; margin-top: 0.3rem;
+  }
+  .row { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; align-items: center; }
+  .row input { margin-top: 0; }
+  button {
+    background: var(--green); color: #fff; border: none; border-radius: 6px;
+    padding: 0.55rem 0.9rem; cursor: pointer; font-size: 0.9rem;
+  }
+  button.secondary { background: var(--card); color: var(--dark); border: 1px solid var(--border); margin-top: 1rem; }
+  #email-list { list-style: none; padding: 0; margin-top: 1rem; }
+  #email-list li { padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; display: flex; justify-content: space-between; }
+  #email-list span { color: var(--grey); font-size: 0.8rem; }
+</style>

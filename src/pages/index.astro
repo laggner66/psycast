@@ -27,9 +27,15 @@ const recent = [...articles]
   <section class="intro">
     <h1>psycast — Artikel-Archiv</h1>
     <p>
-      Eine unabhängige, dauerhaft erreichbare Sammlung von Beiträgen aus dem
+      Eine dauerhaft erreichbare Sammlung von Beiträgen aus dem
       <a href="https://www.counselorakademie.com/blog" target="_blank" rel="noopener noreferrer">Counselorakademie-Blog</a>.
       {articles.length} Artikel in {categories.length} Kategorien.
+    </p>
+    <p class="gate-note">
+      Ein Teil der Artikel ist als Kostprobe frei lesbar, der Rest steht
+      eingeladenen Gästen zur Verfügung.
+      <a href="/zugang-anfragen">Zugang anfragen</a> ·
+      <a href="/login">bereits eingeladen? Hier einloggen</a>
     </p>
   </section>
 
@@ -67,6 +73,10 @@ const recent = [...articles]
 <style>
   .intro h1 { font-size: 2.2rem; margin-bottom: 0.5rem; }
   .intro p { color: var(--grey); max-width: 60ch; }
+  .gate-note {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.75rem 1rem; font-size: 0.9rem; max-width: 60ch;
+  }
 
   .toc { margin-top: 2.5rem; }
   .toc h2 { color: var(--green); font-size: 1.3rem; margin-bottom: 1rem; }

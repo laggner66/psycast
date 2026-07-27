@@ -1,6 +1,7 @@
 ---
 title: "Parentifizierung"
 category: "Sonstiges"
+access: "public"
 tags: []
 originalUrl: "https://www.counselorakademie.com/post/parentifizierung"
 readingTime: "3 Min."

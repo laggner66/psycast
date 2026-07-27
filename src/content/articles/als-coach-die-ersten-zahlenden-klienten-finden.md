@@ -1,6 +1,7 @@
 ---
 title: "Als Coach die ersten zahlenden Klienten finden: "
 category: "Marketing mit KI"
+access: "public"
 tags: []
 originalUrl: "https://www.counselorakademie.com/post/als-coach-die-ersten-zahlenden-klienten-finden"
 readingTime: "3 Min."

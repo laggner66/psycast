@@ -1,6 +1,7 @@
 ---
 title: "Biografiearbeit in der psychosozialen Beratung"
 category: "Biografiearbeit"
+access: "public"
 tags: ["Biografiearbeit", "Carl Rogers", "Selbsterfahrung", "Ausbildung"]
 originalUrl: "https://www.counselorakademie.com/post/biografiearbeit-in-der-psychosozialen-beratung"
 readingTime: "8 Min. Lesezeit"

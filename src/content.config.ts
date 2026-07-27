@@ -13,6 +13,7 @@ const articles = defineCollection({
     excerpt: z.string(),
     metaDescription: z.string(),
     publishDate: z.string().optional(),
+    access: z.enum(["public", "gated"]).default("gated"),
   }),
 });
 

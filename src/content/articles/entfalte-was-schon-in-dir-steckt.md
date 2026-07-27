@@ -1,6 +1,7 @@
 ---
 title: "Entfalte, was schon in dir steckt"
 category: "Ausbildungen"
+access: "public"
 tags: ["Her-Ausbildung", "Personzentriert", "Supervision", "Selbstwirksamkeit"]
 originalUrl: "https://www.counselorakademie.com/post/entfalte-was-schon-in-dir-steckt"
 readingTime: "3 Min. Lesezeit"

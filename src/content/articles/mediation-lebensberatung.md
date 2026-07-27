@@ -1,6 +1,7 @@
 ---
 title: "Mediation & Lebensberatung"
 category: "Mediation"
+access: "public"
 tags: ["Mediation", "Lebensberatung", "Dialog", "Konfliktkompetenz"]
 originalUrl: "https://www.counselorakademie.com/post/mediation-lebensberatung"
 readingTime: "2 Min. Lesezeit"

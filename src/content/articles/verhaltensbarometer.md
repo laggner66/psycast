@@ -1,6 +1,7 @@
 ---
 title: "Verhaltensbarometer"
 category: "Mentaltraining & NLP"
+access: "public"
 tags: []
 originalUrl: "https://www.counselorakademie.com/post/verhaltensbarometer"
 readingTime: "3 Min."

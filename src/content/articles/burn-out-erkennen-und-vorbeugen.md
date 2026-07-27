@@ -1,6 +1,7 @@
 ---
 title: "Burn-Out erkennen und vorbeugen"
 category: "Psychosoziales"
+access: "public"
 tags: ["Burnout-Prävention", "Stressbewältigung", "Work-Life-Balance", "Gelassenheit"]
 originalUrl: "https://www.counselorakademie.com/post/burn-out-erkennen-und-vorbeugen"
 readingTime: "3 Min. Lesezeit"

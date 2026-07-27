@@ -1,6 +1,7 @@
 ---
 title: "Beziehungsdynamik und emotionale Belastungen – Ein Beispiel aus der psychotherapeutischen Praxis"
 category: "Z-Diagnosen"
+access: "public"
 tags: ["Fallbeispiel"]
 originalUrl: "https://www.counselorakademie.com/post/beziehungsdynamik-und-emotionale-belastungen-ein-beispiel-aus-der-psychotherapeutischen-praxis"
 readingTime: "2 Min."
