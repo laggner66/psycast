@@ -5,30 +5,45 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   title="Login — psycast"
   description="Login für eingeladene Gäste des psycast-Archivs."
 >
-  <article class="login">
-    <h1>Ihr persönlicher Zugang</h1>
-    <p>
-      Diese Inhalte stehen persönlich eingeladenen Gästen zur Verfügung.
-      Gib deine E-Mail-Adresse ein — falls sie freigeschaltet ist, bekommst
-      du einen Login-Link zugeschickt.
-    </p>
+  <div class="login-wrap">
+    <article class="login-card">
+      <div class="login-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <rect x="4" y="10" width="16" height="10" rx="2.5" stroke="currentColor" stroke-width="1.6" />
+          <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          <circle cx="12" cy="15" r="1.6" fill="currentColor" />
+        </svg>
+      </div>
+      <h1>Ihr persönlicher Zugang</h1>
+      <p class="lede">
+        Diese Inhalte stehen persönlich eingeladenen Gästen zur Verfügung.
+        Trag deine E-Mail-Adresse ein — falls sie freigeschaltet ist, bekommst
+        du einen Login-Link zugeschickt. Ganz ohne Passwort.
+      </p>
 
-    <form id="login-form">
-      <label for="email">E-Mail-Adresse</label>
-      <input type="email" id="email" name="email" required autocomplete="email" />
-      <button type="submit">Login-Link anfordern</button>
-    </form>
-    <p id="login-status" role="status"></p>
+      <form id="login-form">
+        <label for="email">E-Mail-Adresse</label>
+        <input type="email" id="email" name="email" placeholder="du@beispiel.at" required autocomplete="email" />
+        <button type="submit">
+          <span>Login-Link anfordern</span>
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </form>
+      <p id="login-status" role="status"></p>
+    </article>
 
-    <div class="divider"></div>
-
-    <h2>Noch keinen Zugang?</h2>
-    <p>
-      Fordere deine persönliche Einladung an — wir prüfen jede Anfrage und
-      melden uns per E-Mail.
-    </p>
-    <a class="request-link" href="/zugang-anfragen">Persönliche Einladung anfragen</a>
-  </article>
+    <article class="invite-card">
+      <h2>Noch keinen Zugang?</h2>
+      <p>
+        Fordere deine persönliche Einladung an — wir prüfen jede Anfrage und
+        melden uns per E-Mail.
+      </p>
+      <a class="request-link" href="/zugang-anfragen">
+        Persönliche Einladung anfragen
+        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </article>
+  </div>
 
   <script>
     const form = document.getElementById("login-form") as HTMLFormElement;
@@ -53,23 +68,81 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 </BaseLayout>
 
 <style>
-  .login { max-width: 46ch; }
-  .login h1 { font-size: 1.8rem; margin-bottom: 0.75rem; }
-  .login h2 { color: var(--green); font-size: 1.1rem; margin-top: 0; }
-  .login p { color: var(--grey); }
-  form { margin: 1.5rem 0; display: flex; flex-direction: column; gap: 0.6rem; max-width: 320px; }
-  label { font-size: 0.85rem; color: var(--grey); }
+  .login-wrap {
+    max-width: 460px;
+    margin: 1.5rem auto 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .login-card {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2.4rem 2.2rem 2.2rem;
+    box-shadow: var(--shadow-lift);
+    overflow: hidden;
+  }
+  .login-card::before {
+    content: "";
+    position: absolute; inset: 0 0 auto 0; height: 5px;
+    background: linear-gradient(90deg, var(--green), var(--brown));
+  }
+  .login-icon {
+    width: 46px; height: 46px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--green-dark);
+    background: var(--green-light);
+    border-radius: 12px;
+    margin-bottom: 1.1rem;
+  }
+  .login-icon svg { width: 24px; height: 24px; }
+
+  .login-card h1 { font-size: 1.7rem; margin: 0 0 0.6rem; color: var(--dark); }
+  .lede { color: var(--grey); font-size: 0.95rem; margin: 0 0 1.6rem; }
+
+  form { display: flex; flex-direction: column; gap: 0.5rem; }
+  label { font-size: 0.82rem; color: var(--grey); font-weight: 600; }
   input {
-    padding: 0.6rem 0.75rem; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem;
+    padding: 0.75rem 0.9rem; border: 1px solid var(--border); border-radius: 10px;
+    font-size: 1rem; font-family: var(--font-body); background: var(--bg);
+    transition: border-color 0.15s ease, background 0.15s ease;
   }
+  input:focus { border-color: var(--green); background: #fff; outline: none; }
   button {
-    background: var(--green); color: #fff; border: none; border-radius: 6px;
-    padding: 0.7rem 1rem; font-size: 0.95rem; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+    background: var(--green); color: #fff; border: none; border-radius: 10px;
+    padding: 0.8rem 1.1rem; font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    margin-top: 0.4rem;
+    transition: background 0.15s ease, transform 0.15s ease;
   }
-  #login-status { font-size: 0.9rem; color: var(--dark); min-height: 1.2em; }
-  .divider { border-top: 1px solid var(--border); margin: 2rem 0; }
+  button svg { width: 16px; height: 16px; }
+  button:hover { background: var(--green-dark); transform: translateY(-1px); }
+  #login-status { font-size: 0.88rem; color: var(--dark); min-height: 1.2em; margin: 0.9rem 0 0; }
+
+  .invite-card {
+    background: var(--green-light);
+    border: 1px solid color-mix(in srgb, var(--green) 25%, var(--border));
+    border-radius: 16px;
+    padding: 1.5rem 1.8rem;
+    text-align: center;
+  }
+  .invite-card h2 { color: var(--green-dark); font-size: 1.05rem; margin: 0 0 0.4rem; }
+  .invite-card p { color: var(--grey); font-size: 0.9rem; margin: 0 0 1.1rem; }
   .request-link {
-    display: inline-block; margin-top: 0.5rem; background: var(--card); border: 1px solid var(--border);
-    border-radius: 6px; padding: 0.6rem 1rem; text-decoration: none; color: var(--dark);
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 999px; padding: 0.65rem 1.3rem; text-decoration: none; color: var(--dark);
+    font-weight: 600; font-size: 0.9rem;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+  .request-link svg { width: 15px; height: 15px; }
+  .request-link:hover { border-color: var(--green); transform: translateY(-1px); }
+
+  @media (max-width: 520px) {
+    .login-card { padding: 2rem 1.5rem 1.8rem; }
+    .invite-card { padding: 1.3rem; }
   }
 </style>

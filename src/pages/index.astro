@@ -24,23 +24,42 @@ const recent = [...articles]
   title="psycast — Artikel-Archiv der Counselorakademie"
   description="Unabhängiges Archiv aller Blogartikel der Counselorakademie: Lebens- und Sozialberatung, Mentaltraining, Mediation und mehr — mit QR-Codes und druckfähiger Broschüre."
 >
-  <section class="intro">
-    <h1>psycast — Artikel-Archiv</h1>
-    <p>
-      Eine dauerhaft erreichbare Sammlung von Beiträgen aus dem
-      <a href="https://www.counselorakademie.com/blog" target="_blank" rel="noopener noreferrer">Counselorakademie-Blog</a>.
-      {articles.length} Artikel in {categories.length} Kategorien.
-    </p>
-    <p class="gate-note">
-      Ein Teil der Artikel ist als Kostprobe frei lesbar, der Rest steht
-      eingeladenen Gästen zur Verfügung.
-      <a href="/zugang-anfragen">Zugang anfragen</a> ·
-      <a href="/login">bereits eingeladen? Hier einloggen</a>
-    </p>
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Archiv &amp; Wissensbibliothek</p>
+      <h1>psycast</h1>
+      <p class="lede">
+        Eine dauerhaft erreichbare Sammlung von Beiträgen aus dem
+        <a href="https://www.counselorakademie.com/blog" target="_blank" rel="noopener noreferrer">Counselorakademie-Blog</a>
+        — zu Lebens- und Sozialberatung, Mentaltraining, Mediation und mehr.
+      </p>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-num">{articles.length}</span>
+          <span class="stat-label">Artikel</span>
+        </div>
+        <div class="stat-sep" aria-hidden="true"></div>
+        <div class="stat">
+          <span class="stat-num">{categories.length}</span>
+          <span class="stat-label">Kategorien</span>
+        </div>
+      </div>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="/zugang-anfragen">Zugang anfragen</a>
+        <a class="btn btn-ghost" href="/login">Bereits eingeladen? Einloggen</a>
+      </div>
+      <p class="gate-note">
+        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 9V6.5a5 5 0 0 1 10 0V9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="3.5" y="9" width="13" height="8.5" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>
+        Ein Teil der Artikel ist als Kostprobe frei lesbar, der Rest steht persönlich eingeladenen Gästen zur Verfügung.
+      </p>
+    </div>
   </section>
 
   <section class="toc">
-    <h2>Inhaltsverzeichnis</h2>
+    <div class="section-head">
+      <h2>Inhaltsverzeichnis</h2>
+      <span class="section-sub">Nach Themengebiet geordnet</span>
+    </div>
     <ul class="toc-grid">
       {categories.map(({ category, items, slug }) => (
         <li>
@@ -55,7 +74,10 @@ const recent = [...articles]
 
   {recent.length > 0 && (
     <section class="recent">
-      <h2>Zuletzt hinzugefügt</h2>
+      <div class="section-head">
+        <h2>Zuletzt hinzugefügt</h2>
+        <span class="section-sub">Die neuesten Beiträge im Archiv</span>
+      </div>
       <ul class="recent-list">
         {recent.map((a) => (
           <li>
@@ -71,36 +93,108 @@ const recent = [...articles]
 </BaseLayout>
 
 <style>
-  .intro h1 { font-size: 2.2rem; margin-bottom: 0.5rem; }
-  .intro p { color: var(--grey); max-width: 60ch; }
-  .gate-note {
-    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
-    padding: 0.75rem 1rem; font-size: 0.9rem; max-width: 60ch;
+  .hero {
+    position: relative;
+    margin: -0.5rem -1.5rem 3rem;
+    padding: 3.2rem 1.5rem 3rem;
+    border-radius: 0 0 28px 28px;
+    background:
+      radial-gradient(560px 320px at 88% -10%, color-mix(in srgb, var(--brown) 30%, transparent), transparent 70%),
+      radial-gradient(640px 380px at -10% 0%, color-mix(in srgb, var(--green) 24%, transparent), transparent 65%),
+      var(--card);
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
   }
+  .hero-copy { max-width: 62ch; position: relative; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    text-transform: uppercase; letter-spacing: 0.14em; font-size: 0.72rem;
+    font-weight: 700; color: var(--green-dark);
+    margin: 0 0 0.9rem;
+  }
+  .eyebrow::before {
+    content: ""; width: 1.4rem; height: 2px; background: var(--brown); display: inline-block;
+  }
+  .hero h1 {
+    font-size: clamp(2.6rem, 5vw, 3.6rem);
+    font-weight: 600;
+    line-height: 1.05;
+    margin: 0 0 0.85rem;
+    color: var(--dark);
+  }
+  .lede { color: var(--grey); font-size: 1.08rem; max-width: 56ch; margin: 0 0 1.6rem; }
 
-  .toc { margin-top: 2.5rem; }
-  .toc h2 { color: var(--green); font-size: 1.3rem; margin-bottom: 1rem; }
+  .hero-stats { display: flex; align-items: center; gap: 1.4rem; margin-bottom: 1.8rem; }
+  .stat { display: flex; flex-direction: column; }
+  .stat-num { font-family: var(--font-display); font-size: 1.8rem; font-weight: 600; color: var(--green-dark); line-height: 1; }
+  .stat-label { font-size: 0.78rem; color: var(--grey); margin-top: 0.15rem; }
+  .stat-sep { width: 1px; height: 2.2rem; background: var(--border); }
+
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.6rem; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    text-decoration: none; font-weight: 600; font-size: 0.95rem;
+    padding: 0.75rem 1.4rem; border-radius: 999px; transition: all 0.15s ease;
+  }
+  .btn-primary { background: var(--green); color: #fff; box-shadow: var(--shadow-soft); }
+  .btn-primary:hover { background: var(--green-dark); transform: translateY(-1px); box-shadow: var(--shadow-lift); }
+  .btn-ghost { background: transparent; color: var(--dark); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--green); color: var(--green-dark); background: var(--green-light); }
+
+  .gate-note {
+    display: flex; align-items: flex-start; gap: 0.6rem;
+    background: color-mix(in srgb, var(--card) 60%, var(--bg));
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 0.75rem 1rem; font-size: 0.88rem; max-width: 56ch; color: var(--grey);
+    margin: 0;
+  }
+  .gate-note svg { flex: 0 0 auto; width: 18px; height: 18px; color: var(--brown); margin-top: 0.1rem; }
+
+  .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 1.1rem; flex-wrap: wrap; }
+  .section-head h2 { color: var(--dark); font-size: 1.5rem; margin: 0; }
+  .section-sub { color: var(--grey); font-size: 0.85rem; }
+
+  .toc { margin-top: 3rem; }
   .toc-grid {
     list-style: none; padding: 0; margin: 0;
-    display: grid; gap: 0.75rem;
+    display: grid; gap: 0.85rem;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   }
   .toc-grid a {
-    display: flex; justify-content: space-between; align-items: baseline;
-    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
-    padding: 0.8rem 1rem; text-decoration: none; color: var(--dark);
+    position: relative;
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1rem 1.1rem 1rem 1.3rem; text-decoration: none; color: var(--dark);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
   }
+  .toc-grid a::before {
+    content: ""; position: absolute; left: 0; top: 0.7rem; bottom: 0.7rem; width: 3px;
+    border-radius: 3px; background: var(--brown);
+  }
+  .toc-grid a:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); border-color: var(--green); }
   .toc-name { font-weight: 600; }
-  .toc-count { color: var(--grey); font-size: 0.9rem; }
+  .toc-count {
+    color: var(--green-dark); font-size: 0.78rem; font-weight: 700;
+    background: var(--green-light); border-radius: 999px; padding: 0.2rem 0.55rem;
+  }
 
-  .recent { margin-top: 3rem; }
-  .recent h2 { color: var(--green); font-size: 1.3rem; margin-bottom: 1rem; }
+  .recent { margin-top: 3.2rem; }
   .recent-list { list-style: none; padding: 0; margin: 0; }
   .recent-list li + li { border-top: 1px solid var(--border); }
   .recent-list a {
-    display: flex; justify-content: space-between; gap: 1rem;
-    padding: 0.7rem 0.2rem; text-decoration: none; color: var(--dark);
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+    padding: 0.85rem 0.3rem; text-decoration: none; color: var(--dark);
+    transition: padding-left 0.15s ease, color 0.15s ease;
   }
+  .recent-list a:hover { padding-left: 0.5rem; color: var(--green-dark); }
   .recent-title { font-weight: 500; }
-  .recent-cat { color: var(--brown); font-size: 0.85rem; white-space: nowrap; }
+  .recent-cat {
+    color: var(--brown); font-size: 0.78rem; white-space: nowrap;
+    border: 1px solid var(--brown-light); background: var(--brown-light);
+    border-radius: 999px; padding: 0.2rem 0.6rem; font-weight: 600;
+  }
+
+  @media (max-width: 640px) {
+    .hero { margin: -0.5rem -1rem 2.2rem; border-radius: 0 0 20px 20px; padding: 2.4rem 1rem 2.2rem; }
+  }
 </style>

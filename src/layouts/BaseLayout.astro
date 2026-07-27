@@ -27,10 +27,25 @@ const url = canonical ?? new URL(Astro.url.pathname, site).toString();
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="/">psycast</a>
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="16" cy="16" r="15" stroke="currentColor" stroke-width="2" />
+            <path d="M10 20c1.5-6 4-9 6-9s4.5 3 6 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <circle cx="16" cy="12" r="2.4" fill="currentColor" />
+          </svg>
+        </span>
+        psycast
+      </a>
       <span class="tagline">Blog-Archiv von Thomas Laggner · Counselorakademie</span>
       <a class="login-link" href="/login">Login</a>
     </header>
@@ -75,37 +90,73 @@ const url = canonical ?? new URL(Astro.url.pathname, site).toString();
 <style is:global>
   :root {
     --green: #2f6f68;
+    --green-dark: #1f4f4a;
+    --green-light: #e4efec;
     --brown: #b87a5b;
+    --brown-light: #f3e4da;
     --dark: #17211f;
     --grey: #53615d;
     --bg: #f7f5f0;
     --card: #fffdfa;
     --border: #d9ded8;
+    --font-display: "Fraunces", Georgia, serif;
+    --font-body: "Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
+    --shadow-soft: 0 1px 2px rgba(23, 33, 31, 0.04), 0 8px 24px -8px rgba(23, 33, 31, 0.12);
+    --shadow-lift: 0 4px 8px rgba(23, 33, 31, 0.05), 0 16px 40px -12px rgba(23, 33, 31, 0.18);
   }
   * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
   body {
     margin: 0;
     background: var(--bg);
     color: var(--dark);
-    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
-    line-height: 1.6;
+    font-family: var(--font-body);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
   }
+  h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.01em; }
   a { color: var(--green); }
+  a:focus-visible, button:focus-visible, input:focus-visible {
+    outline: 2px solid var(--green); outline-offset: 2px;
+  }
   .site-header {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 1rem;
-    padding: 1.25rem 1.5rem;
+    padding: 1.1rem 1.5rem;
     border-bottom: 1px solid var(--border);
     background: var(--card);
     flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    backdrop-filter: saturate(1.1) blur(6px);
+    background: color-mix(in srgb, var(--card) 92%, transparent);
   }
-  .brand { font-weight: 800; font-size: 1.4rem; color: var(--dark); text-decoration: none; }
-  .tagline { color: var(--grey); font-size: 0.95rem; flex: 1; }
+  .brand {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.35rem;
+    color: var(--dark);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .brand-mark {
+    display: inline-flex;
+    color: var(--green);
+    width: 26px;
+    height: 26px;
+  }
+  .brand-mark svg { width: 100%; height: 100%; }
+  .tagline { color: var(--grey); font-size: 0.9rem; flex: 1; }
   .login-link {
-    color: var(--dark); text-decoration: none; font-size: 0.9rem; font-weight: 600;
-    border: 1px solid var(--border); border-radius: 6px; padding: 0.35rem 0.8rem; background: var(--bg);
+    color: var(--card); text-decoration: none; font-size: 0.88rem; font-weight: 600;
+    border: 1px solid var(--green); border-radius: 999px; padding: 0.45rem 1.1rem; background: var(--green);
+    transition: background 0.15s ease, transform 0.15s ease;
   }
+  .login-link:hover { background: var(--green-dark); transform: translateY(-1px); }
   main { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
   .site-footer {
     border-top: 1px solid var(--border);
