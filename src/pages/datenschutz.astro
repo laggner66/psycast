@@ -1,0 +1,96 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout
+  title="Datenschutz — psycast"
+  description="Datenschutzerklärung für psycast, das Artikel-Archiv der Counselorakademie."
+>
+  <article class="legal">
+    <h1>Datenschutz</h1>
+    <p class="lead">
+      psycast ist ein rein statisches Artikel-Archiv. Es gibt keine
+      Registrierung, keine Kontaktformulare und aktuell keine Cookies oder
+      Tracking-Tools. Diese Erklärung beschreibt trotzdem transparent, welche
+      Daten technisch anfallen.
+    </p>
+
+    <h2>1. Verantwortlicher</h2>
+    <div class="box">
+      <p><strong>ABC – Access Bildungsforum Counselorakademie</strong></p>
+      <p>Wienerstrasse 17, 2442 Unterwaltersdorf, Österreich</p>
+      <p>E-Mail: <a href="mailto:office@counselorakademie.com">office@counselorakademie.com</a></p>
+      <p>Obmann: Thomas Laggner</p>
+    </div>
+
+    <h2>2. Hosting und Server-Logs</h2>
+    <p>
+      psycast wird als statische Website über <strong>Netlify, Inc.</strong>
+      ausgeliefert. Beim Aufruf einer Seite verarbeitet Netlify automatisch
+      technische Zugriffsdaten (u.&nbsp;a. IP-Adresse, Datum/Uhrzeit,
+      aufgerufene URL, Browsertyp), um die Website sicher und funktionsfähig
+      bereitzustellen. Eine darüberhinausgehende Auswertung durch uns findet
+      nicht statt.
+    </p>
+    <p>
+      <strong>Rechtsgrundlage:</strong> Art. 6 Abs. 1 lit. f DSGVO
+      (berechtigtes Interesse an einem sicheren, funktionierenden Betrieb).
+      Netlify kann Daten auch außerhalb der EU verarbeiten; hierfür gelten
+      die Standardvertragsklauseln gemäß
+      <a href="https://www.netlify.com/gdpr-ccpa/" target="_blank" rel="noopener noreferrer">Netlifys DPA</a>.
+    </p>
+
+    <h2>3. Cookies, Analyse, Werbung</h2>
+    <p>
+      psycast setzt aktuell <strong>keine Cookies</strong> und keine
+      Analyse- oder Marketing-Tools (z.&nbsp;B. Google Analytics, Google Ads)
+      ein. Sollte sich das künftig ändern, wird diese Erklärung aktualisiert
+      und – soweit erforderlich – vorab eine Einwilligung eingeholt.
+    </p>
+
+    <h2>4. Eingebettete Bilder</h2>
+    <p>
+      Artikelbilder werden teilweise direkt von den Servern der
+      Counselorakademie (Wix, static.wixstatic.com) nachgeladen. Beim Laden
+      dieser Bilder wird Ihre IP-Adresse an den jeweiligen Anbieter
+      übertragen, wie es beim technischen Abruf jeder Bild-URL im Web üblich
+      ist.
+    </p>
+
+    <h2>5. Ihre Rechte</h2>
+    <p>Ihnen stehen die üblichen Betroffenenrechte nach DSGVO zu:</p>
+    <ul>
+      <li>Auskunft über die Sie betreffenden Daten</li>
+      <li>Berichtigung unrichtiger Daten</li>
+      <li>Löschung bzw. Einschränkung der Verarbeitung</li>
+      <li>Widerspruch gegen die Verarbeitung</li>
+      <li>
+        Beschwerde bei der österreichischen Datenschutzbehörde
+        (<a href="https://www.dsb.gv.at" target="_blank" rel="noopener noreferrer">www.dsb.gv.at</a>)
+      </li>
+    </ul>
+    <p>
+      Anfragen dazu richten Sie bitte an
+      <a href="mailto:office@counselorakademie.com">office@counselorakademie.com</a>.
+    </p>
+
+    <p class="stand">Stand: {new Date().toLocaleDateString("de-AT")}</p>
+  </article>
+</BaseLayout>
+
+<style>
+  .legal { max-width: 68ch; }
+  .legal h1 { font-size: 2rem; margin-bottom: 0.75rem; }
+  .legal .lead { color: var(--grey); }
+  .legal h2 { color: var(--green); font-size: 1.2rem; margin-top: 2rem; }
+  .legal ul { padding-left: 1.25rem; }
+  .legal li { margin: 0.35rem 0; }
+  .box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin: 1rem 0;
+  }
+  .box p { margin: 0.35rem 0; }
+  .stand { color: var(--grey); font-size: 0.85rem; margin-top: 2.5rem; }
+</style>

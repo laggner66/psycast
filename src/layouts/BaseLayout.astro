@@ -40,7 +40,32 @@ const url = canonical ?? new URL(Astro.url.pathname, site).toString();
         <a href="https://www.counselorakademie.com/blog" target="_blank" rel="noopener noreferrer">Counselorakademie</a>
         zusammen. Es ersetzt keine Psychotherapie, medizinische Behandlung oder Krisenhilfe.
       </p>
+      <nav class="legal-nav">
+        <a href="/impressum">Impressum</a>
+        <span aria-hidden="true">·</span>
+        <a href="/datenschutz">Datenschutz</a>
+      </nav>
     </footer>
+    <div id="cookie-notice" class="cookie-notice" hidden>
+      <p>
+        Diese Website verwendet aktuell <strong>keine Cookies</strong> und keine
+        Analyse- oder Marketing-Tools. Es werden nur die technisch
+        notwendigen Server-Logs unseres Hosting-Anbieters Netlify erfasst.
+        Mehr dazu in der <a href="/datenschutz">Datenschutzerklärung</a>.
+      </p>
+      <button type="button" id="cookie-notice-dismiss">Verstanden</button>
+    </div>
+    <script>
+      const KEY = "psycast-cookie-notice-dismissed";
+      const el = document.getElementById("cookie-notice");
+      if (el && !localStorage.getItem(KEY)) {
+        el.hidden = false;
+      }
+      document.getElementById("cookie-notice-dismiss")?.addEventListener("click", () => {
+        localStorage.setItem(KEY, "1");
+        if (el) el.hidden = true;
+      });
+    </script>
   </body>
 </html>
 
@@ -81,5 +106,38 @@ const url = canonical ?? new URL(Astro.url.pathname, site).toString();
     text-align: center;
     color: var(--grey);
     font-size: 0.85rem;
+  }
+  .legal-nav { margin-top: 0.6rem; display: flex; justify-content: center; gap: 0.5rem; }
+  .legal-nav a { color: var(--grey); text-decoration: underline; }
+  .cookie-notice {
+    position: fixed;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    max-width: 640px;
+    margin: 0 auto;
+    background: var(--dark);
+    color: #f7f5f0;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+    z-index: 50;
+  }
+  .cookie-notice[hidden] { display: none; }
+  .cookie-notice p { margin: 0; font-size: 0.85rem; flex: 1 1 260px; }
+  .cookie-notice a { color: #cfe8e3; }
+  .cookie-notice button {
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    flex: 0 0 auto;
   }
 </style>

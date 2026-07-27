@@ -1,0 +1,72 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout
+  title="Impressum — psycast"
+  description="Impressum und Offenlegung gemäß §5 ECG / Mediengesetz für psycast, das Artikel-Archiv der Counselorakademie."
+>
+  <article class="legal">
+    <h1>Impressum</h1>
+
+    <p>
+      psycast ist das digitale Artikel-Archiv der Counselorakademie und fasst
+      ausgewählte Beiträge des
+      <a href="https://www.counselorakademie.com/blog" target="_blank" rel="noopener noreferrer">Counselorakademie-Blogs</a>
+      dauerhaft erreichbar zusammen.
+    </p>
+
+    <h2>Betreiber und Medieninhaber</h2>
+    <div class="box">
+      <p><strong>ABC – Access Bildungsforum Counselorakademie</strong></p>
+      <p>Wienerstrasse 17<br />2442 Unterwaltersdorf<br />Österreich</p>
+      <p>Telefon: <a href="tel:+436991216980">0699 121 690 80</a></p>
+      <p>E-Mail: <a href="mailto:office@counselorakademie.com">office@counselorakademie.com</a></p>
+      <p>Web: <a href="https://www.counselorakademie.com">www.counselorakademie.com</a></p>
+      <p>Obmann: Thomas Laggner</p>
+      <p>ZVR-Zahl: 1322554922</p>
+      <p>Zuständige Bezirkshauptmannschaft: Baden</p>
+    </div>
+
+    <h2>Haftung für Inhalte</h2>
+    <p>
+      Die auf psycast veröffentlichten Texte sind eine redaktionell
+      übernommene Zusammenstellung von Originalbeiträgen des
+      Counselorakademie-Blogs. Für die Richtigkeit, Vollständigkeit und
+      Aktualität der Inhalte wird keine Gewähr übernommen. Die Inhalte
+      ersetzen keine Psychotherapie, medizinische Behandlung, Diagnostik oder
+      Krisenhilfe.
+    </p>
+
+    <h2>Urheberrecht</h2>
+    <p>
+      Sämtliche Texte und Bilder sind urheberrechtlich geschützt und stammen
+      von der Counselorakademie. Jede Verwertung außerhalb der engen Grenzen
+      des Urheberrechtsgesetzes bedarf der vorherigen schriftlichen
+      Zustimmung.
+    </p>
+
+    <h2>Online-Streitbeilegung</h2>
+    <p>
+      Die Europäische Kommission stellt eine Plattform zur
+      Online-Streitbeilegung (OS) bereit:
+      <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer">ec.europa.eu/consumers/odr</a>.
+    </p>
+
+    <p class="stand">Stand dieses Impressums: {new Date().toLocaleDateString("de-AT")}</p>
+  </article>
+</BaseLayout>
+
+<style>
+  .legal { max-width: 68ch; }
+  .legal h1 { font-size: 2rem; margin-bottom: 1rem; }
+  .legal h2 { color: var(--green); font-size: 1.2rem; margin-top: 2rem; }
+  .box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin: 1rem 0;
+  }
+  .box p { margin: 0.35rem 0; }
+  .stand { color: var(--grey); font-size: 0.85rem; margin-top: 2.5rem; }
+</style>
