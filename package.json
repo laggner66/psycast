@@ -9,6 +9,7 @@
     "dev": "astro dev",
     "qrcodes": "node scripts/generate-qrcodes.mjs",
     "brochure": "node scripts/generate-brochure.mjs",
+    "book": "node scripts/generate-book.mjs",
     "build": "node scripts/generate-qrcodes.mjs && node scripts/generate-access-manifest.mjs && astro build",
     "preview": "astro preview",
     "astro": "astro"
@@ -21,6 +22,8 @@
     "qrcode": "^1.5.4"
   },
   "devDependencies": {
-    "@netlify/functions": "^5.3.0"
+    "@netlify/functions": "^5.3.0",
+    "marked": "^18.0.7",
+    "pdfjs-dist": "^6.1.200"
   }
 }

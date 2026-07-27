@@ -9,6 +9,8 @@ public/access-manifest.json
 netlify/edge-functions/gated-slugs.json
 brochure.tmp.html
 psycast-broschuere.pdf
+psycast-buch.pdf
+.book-tmp/
 
 # dependencies
 node_modules/
