@@ -5,10 +5,35 @@ interface Props {
   canonical?: string;
   image?: string;
   noindex?: boolean;
+  /** Strukturierte Daten (schema.org) für Suchmaschinen und KI-Systeme. */
+  jsonLd?: unknown[];
 }
-const { title, description, canonical, image, noindex } = Astro.props;
+const { title, description, canonical, image, noindex, jsonLd = [] } = Astro.props;
 const site = "https://psycast.netlify.app";
 const url = canonical ?? new URL(Astro.url.pathname, site).toString();
+
+// Auf jeder Seite: Wer betreibt das Archiv, worum geht es, wie wird gesucht.
+// Das hilft klassischen Suchmaschinen ebenso wie KI-Assistenten beim Einordnen.
+const siteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "psycast — Archiv der Counselorakademie",
+  alternateName: "psycast Archiv",
+  url: site,
+  inLanguage: "de-AT",
+  description:
+    "Dauerhaft erreichbares Archiv der Fachbeiträge der Counselorakademie zu Lebens- und Sozialberatung, Mentaltraining, Mediation, Supervision und Psychoedukation.",
+  publisher: {
+    "@type": "Organization",
+    name: "Counselorakademie",
+    url: "https://www.counselorakademie.com",
+  },
+  potentialAction: {
+    "@type": "SearchAction",
+    target: { "@type": "EntryPoint", urlTemplate: `${site}/suche?q={search_term_string}` },
+    "query-input": "required name=search_term_string",
+  },
+};
 ---
 <!doctype html>
 <html lang="de">
@@ -33,6 +58,12 @@ const url = canonical ?? new URL(Astro.url.pathname, site).toString();
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    {!noindex && (
+      <script type="application/ld+json" set:html={JSON.stringify(siteJsonLd)} />
+    )}
+    {jsonLd.map((block) => (
+      <script type="application/ld+json" set:html={JSON.stringify(block)} />
+    ))}
   </head>
   <body>
     <header class="site-header">
@@ -47,6 +78,18 @@ const url = canonical ?? new URL(Astro.url.pathname, site).toString();
         psycast
       </a>
       <span class="tagline">Blog-Archiv von Thomas Laggner · Counselorakademie</span>
+      <nav class="site-nav" aria-label="Hauptnavigation">
+        <a href="/teile">Gliederung</a>
+        <a href="/suche">Suche</a>
+      </nav>
+      <form class="header-search" action="/suche" method="get" role="search">
+        <label class="visually-hidden" for="header-q">Archiv durchsuchen</label>
+        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.8" />
+          <path d="M13.5 13.5 17 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+        <input id="header-q" type="search" name="q" placeholder="Suchen …" autocomplete="off" />
+      </form>
       <a class="login-link" href="/login">Login</a>
     </header>
     <main>
@@ -150,7 +193,32 @@ const url = canonical ?? new URL(Astro.url.pathname, site).toString();
     height: 26px;
   }
   .brand-mark svg { width: 100%; height: 100%; }
-  .tagline { color: var(--grey); font-size: 0.9rem; flex: 1; }
+  .tagline { color: var(--grey); font-size: 0.9rem; flex: 1 1 180px; min-width: 0; }
+  .visually-hidden {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  .site-nav { display: flex; gap: 0.2rem; flex: 0 0 auto; }
+  .site-nav a {
+    color: var(--dark); text-decoration: none; font-size: 0.88rem; font-weight: 600;
+    padding: 0.4rem 0.7rem; border-radius: 8px;
+  }
+  .site-nav a:hover { background: var(--green-light); color: var(--green-dark); }
+  .header-search {
+    display: flex; align-items: center; gap: 0.4rem; flex: 0 1 190px;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 999px;
+    padding: 0.28rem 0.85rem;
+  }
+  .header-search:focus-within { border-color: var(--green); background: #fff; }
+  .header-search svg { width: 15px; height: 15px; color: var(--grey); flex: 0 0 auto; }
+  .header-search input {
+    border: none; background: none; outline: none; width: 100%; min-width: 0;
+    font-family: inherit; font-size: 0.85rem; color: var(--dark); padding: 0.2rem 0;
+  }
+  @media (max-width: 820px) {
+    .tagline { display: none; }
+    .header-search { flex: 1 1 130px; }
+  }
   .login-link {
     color: var(--card); text-decoration: none; font-size: 0.88rem; font-weight: 600;
     border: 1px solid var(--green); border-radius: 999px; padding: 0.45rem 1.1rem; background: var(--green);

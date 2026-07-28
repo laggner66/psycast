@@ -1,0 +1,93 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { groupIntoParts } from "../lib/parts.js";
+import { slugify } from "../lib/slugify.js";
+
+const articles = await getCollection("articles");
+const parts = groupIntoParts(articles, slugify);
+
+const site = "https://psycast.netlify.app";
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "Thematische Gliederung des psycast-Archivs",
+  description: `Die ${articles.length} Beiträge des Archivs, gegliedert in ${parts.length} thematische Teile.`,
+  url: `${site}/teile`,
+  inLanguage: "de-AT",
+  hasPart: parts.map((p) => ({
+    "@type": "CollectionPage",
+    name: p.name,
+    description: p.description,
+    url: `${site}/teil/${p.slug}`,
+  })),
+};
+---
+<BaseLayout
+  title="Thematische Gliederung — psycast Archiv"
+  description={`Die ${articles.length} Beiträge des psycast-Archivs, gegliedert in ${parts.length} thematische Teile: von Grundlagen und Menschenbild über Fallgeschichten bis zu Methoden und Praxisführung.`}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} slot="head" />
+
+  <header class="head">
+    <p class="eyebrow">Gliederung</p>
+    <h1>Das Archiv in {parts.length} Teilen</h1>
+    <p class="lede">
+      Die ursprünglichen Blog-Kategorien sind historisch gewachsen. Für das
+      Archiv wurden alle {articles.length} Beiträge in eine durchgehende
+      thematische Ordnung gebracht — dieselbe Gliederung, der auch das
+      gedruckte Archiv-Buch folgt.
+    </p>
+  </header>
+
+  <ol class="parts">
+    {parts.map((part) => (
+      <li class="part">
+        <a href={`/teil/${part.slug}`}>
+          <div class="p-head">
+            <span class="p-roman">Teil {part.roman}</span>
+            <span class="p-count">{part.articles.length} Beiträge</span>
+          </div>
+          <h2>{part.name}</h2>
+          <p class="p-desc">{part.description}</p>
+        </a>
+      </li>
+    ))}
+  </ol>
+</BaseLayout>
+
+<style>
+  .head { margin-bottom: 2rem; max-width: 66ch; }
+  .eyebrow {
+    text-transform: uppercase; letter-spacing: 0.13em; font-size: 0.7rem;
+    font-weight: 700; color: var(--brown); margin: 0 0 0.5rem;
+  }
+  .head h1 { font-size: clamp(1.9rem, 4vw, 2.5rem); margin: 0 0 0.7rem; }
+  .lede { color: var(--grey); margin: 0; line-height: 1.65; }
+
+  .parts { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.8rem; counter-reset: part; }
+  .part a {
+    display: block; text-decoration: none; color: inherit; position: relative;
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 1.2rem 1.4rem 1.3rem 1.7rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .part a::before {
+    content: ""; position: absolute; left: 0; top: 0.9rem; bottom: 0.9rem;
+    width: 4px; border-radius: 4px; background: var(--brown);
+  }
+  .part a:hover, .part a:focus-visible {
+    transform: translateY(-2px); box-shadow: var(--shadow-lift); border-color: var(--green);
+  }
+  .p-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.4rem; }
+  .p-roman {
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.14em;
+    font-weight: 700; color: var(--green-dark);
+  }
+  .p-count {
+    font-size: 0.72rem; font-weight: 700; color: var(--green-dark);
+    background: var(--green-light); border-radius: 999px; padding: 0.18rem 0.6rem; white-space: nowrap;
+  }
+  .part h2 { font-size: 1.25rem; margin: 0 0 0.45rem; line-height: 1.3; }
+  .p-desc { color: var(--grey); font-size: 0.92rem; margin: 0; line-height: 1.6; max-width: 74ch; }
+</style>

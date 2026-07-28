@@ -1,0 +1,174 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { groupIntoParts } from "../../lib/parts.js";
+import { slugify } from "../../lib/slugify.js";
+
+export async function getStaticPaths() {
+  const articles = await getCollection("articles");
+  const parts = groupIntoParts(articles, slugify);
+  return parts.map((part) => ({
+    params: { part: part.slug },
+    props: { part, allParts: parts.map((p) => ({ name: p.name, slug: p.slug, roman: p.roman })) },
+  }));
+}
+
+const { part, allParts } = Astro.props;
+const site = "https://psycast.netlify.app";
+
+const byCategory = [...part.articles.reduce((map, a) => {
+  const key = a.data.category || "Ohne Kategorie";
+  if (!map.has(key)) map.set(key, []);
+  map.get(key).push(a);
+  return map;
+}, new Map())].sort((a, b) => b[1].length - a[1].length);
+
+const publicCount = part.articles.filter((a) => a.data.access === "public").length;
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: `${part.name} — psycast Archiv`,
+  description: part.description,
+  url: `${site}/teil/${part.slug}`,
+  inLanguage: "de-AT",
+  isPartOf: { "@type": "WebSite", name: "psycast Archiv", url: site },
+  mainEntity: {
+    "@type": "ItemList",
+    numberOfItems: part.articles.length,
+    itemListElement: part.articles.slice(0, 100).map((a, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      url: `${site}/artikel/${a.id}`,
+      name: a.data.title,
+    })),
+  },
+};
+
+const breadcrumb = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Archiv", item: site },
+    { "@type": "ListItem", position: 2, name: "Gliederung", item: `${site}/teile` },
+    { "@type": "ListItem", position: 3, name: part.name, item: `${site}/teil/${part.slug}` },
+  ],
+};
+---
+<BaseLayout
+  title={`${part.name} — psycast Archiv`}
+  description={part.description}
+  jsonLd={[jsonLd, breadcrumb]}
+>
+  <nav class="crumbs" aria-label="Pfad">
+    <a href="/">Archiv</a> <span aria-hidden="true">/</span> <a href="/teile">Gliederung</a>
+  </nav>
+
+  <header class="head">
+    <p class="eyebrow">Teil {part.roman}</p>
+    <h1>{part.name}</h1>
+    <p class="lede">{part.description}</p>
+    <p class="facts">
+      <strong>{part.articles.length}</strong> Beiträge ·
+      <strong>{publicCount}</strong> davon frei lesbar ·
+      <strong>{byCategory.length}</strong> Kategorien
+    </p>
+    <p class="actions">
+      <a class="btn" href={`/suche?teil=${encodeURIComponent(part.name)}`}>In diesem Teil suchen</a>
+    </p>
+  </header>
+
+  {byCategory.map(([category, items]) => (
+    <section class="group">
+      <h2>{category} <span class="g-count">{items.length}</span></h2>
+      <ul class="list">
+        {items.map((a) => (
+          <li>
+            <a href={`/artikel/${a.id}`}>
+              <span class="l-title">{a.data.title}</span>
+              <span class="l-meta">
+                {a.data.access === "public"
+                  ? <span class="badge badge-open">frei</span>
+                  : <span class="badge badge-gated">Gäste</span>}
+                {a.data.readingTime && <span class="l-time">{a.data.readingTime}</span>}
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+
+  <nav class="other" aria-label="Weitere Teile">
+    <h2>Weitere Teile</h2>
+    <ul>
+      {allParts.filter((p) => p.slug !== part.slug).map((p) => (
+        <li><a href={`/teil/${p.slug}`}><span>{p.roman}</span> {p.name}</a></li>
+      ))}
+    </ul>
+  </nav>
+</BaseLayout>
+
+<style>
+  .crumbs { font-size: 0.85rem; color: var(--grey); margin-bottom: 1rem; }
+  .crumbs a { color: var(--grey); text-decoration: none; }
+  .crumbs a:hover { color: var(--green-dark); text-decoration: underline; }
+
+  .head {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 1.6rem 1.8rem; margin-bottom: 2rem; position: relative; overflow: hidden;
+  }
+  .head::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--brown);
+  }
+  .eyebrow {
+    text-transform: uppercase; letter-spacing: 0.14em; font-size: 0.72rem;
+    font-weight: 700; color: var(--green-dark); margin: 0 0 0.5rem;
+  }
+  .head h1 { font-size: clamp(1.7rem, 3.6vw, 2.3rem); margin: 0 0 0.6rem; line-height: 1.2; }
+  .lede { color: var(--grey); margin: 0 0 0.9rem; line-height: 1.65; max-width: 72ch; }
+  .facts { font-size: 0.85rem; color: var(--grey); margin: 0 0 1rem; }
+  .facts strong { color: var(--green-dark); }
+  .actions { margin: 0; }
+  .btn {
+    display: inline-flex; align-items: center; background: var(--green); color: #fff;
+    text-decoration: none; font-weight: 600; font-size: 0.88rem;
+    padding: 0.55rem 1.1rem; border-radius: 999px;
+  }
+  .btn:hover { background: var(--green-dark); }
+
+  .group { margin-bottom: 1.8rem; }
+  .group h2 {
+    font-size: 1.05rem; color: var(--green-dark); margin: 0 0 0.7rem;
+    display: flex; align-items: baseline; gap: 0.6rem;
+    border-bottom: 1px solid var(--border); padding-bottom: 0.4rem;
+  }
+  .g-count {
+    font-size: 0.7rem; font-weight: 700; color: var(--green-dark);
+    background: var(--green-light); border-radius: 999px; padding: 0.15rem 0.55rem;
+  }
+  .list { list-style: none; padding: 0; margin: 0; }
+  .list li + li { border-top: 1px solid var(--border); }
+  .list a {
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+    padding: 0.62rem 0.3rem; text-decoration: none; color: var(--dark);
+    transition: padding-left 0.14s ease, color 0.14s ease;
+  }
+  .list a:hover { padding-left: 0.55rem; color: var(--green-dark); }
+  .l-title { font-weight: 500; }
+  .l-meta { display: flex; align-items: center; gap: 0.5rem; flex: 0 0 auto; }
+  .l-time { font-size: 0.75rem; color: var(--grey); white-space: nowrap; }
+  .badge { font-size: 0.66rem; font-weight: 700; border-radius: 999px; padding: 0.12rem 0.5rem; }
+  .badge-open { background: var(--green-light); color: var(--green-dark); }
+  .badge-gated { background: var(--brown-light); color: #8a4a2c; }
+
+  .other { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+  .other h2 { font-size: 1rem; margin: 0 0 0.8rem; color: var(--dark); }
+  .other ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.4rem; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+  .other a {
+    display: block; text-decoration: none; color: var(--dark); font-size: 0.9rem;
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.55rem 0.8rem;
+  }
+  .other a:hover { border-color: var(--green); color: var(--green-dark); background: var(--green-light); }
+  .other span { color: var(--brown); font-weight: 700; margin-right: 0.4rem; }
+</style>

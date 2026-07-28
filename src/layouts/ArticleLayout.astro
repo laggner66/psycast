@@ -2,75 +2,286 @@
 import BaseLayout from "./BaseLayout.astro";
 import { slugify } from "../lib/slugify.js";
 
+interface Related {
+  slug: string; title: string; category: string; readingTime: string; access: string;
+}
+interface Neighbour { slug: string; title: string }
+
 interface Props {
   title: string;
   metaDescription: string;
+  excerpt?: string;
   category: string;
   tags: string[];
   originalUrl: string;
   readingTime?: string;
   heroImage?: string;
+  publishDate?: string;
+  access?: string;
   slug: string;
+  part: string;
+  partSlug: string;
+  partDescription?: string;
+  siblingCount?: number;
+  prev?: Neighbour | null;
+  next?: Neighbour | null;
+  related?: Related[];
 }
-const { title, metaDescription, category, tags, originalUrl, readingTime, heroImage, slug } = Astro.props;
+
+const {
+  title, metaDescription, excerpt, category, tags, originalUrl, readingTime,
+  heroImage, publishDate, access = "gated", slug, part, partSlug,
+  partDescription = "", prev = null, next = null, related = [],
+} = Astro.props;
+
+const site = "https://psycast.netlify.app";
 const categorySlug = slugify(category);
 const qrSrc = `/qrcodes/${slug}.png`;
+const url = `${site}/artikel/${slug}`;
+const isPublic = access === "public";
+
+const dateObj = publishDate ? new Date(publishDate) : null;
+const dateValid = dateObj && !Number.isNaN(dateObj.getTime());
+const dateLabel = dateValid
+  ? dateObj.toLocaleDateString("de-AT", { year: "numeric", month: "long", day: "numeric" })
+  : "";
+const dateIso = dateValid ? dateObj.toISOString() : undefined;
+
+// Strukturierte Daten. isAccessibleForFree macht für Suchmaschinen und
+// KI-Systeme transparent, dass ein Teil der Beiträge hinter einer Anmeldung
+// liegt - das ist die von Google empfohlene Auszeichnung für solche Inhalte.
+const articleJsonLd: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: title,
+  description: metaDescription,
+  abstract: excerpt || metaDescription,
+  articleSection: category,
+  keywords: [category, part, ...(tags ?? [])].filter(Boolean).join(", "),
+  inLanguage: "de-AT",
+  url,
+  mainEntityOfPage: { "@type": "WebPage", "@id": url },
+  author: { "@type": "Person", name: "Thomas Laggner" },
+  publisher: {
+    "@type": "Organization",
+    name: "Counselorakademie",
+    url: "https://www.counselorakademie.com",
+  },
+  isAccessibleForFree: isPublic,
+  isPartOf: {
+    "@type": "CollectionPage",
+    name: part,
+    description: partDescription,
+    url: `${site}/teil/${partSlug}`,
+  },
+  ...(dateIso ? { datePublished: dateIso, dateModified: dateIso } : {}),
+  ...(heroImage ? { image: heroImage } : {}),
+};
+
+if (!isPublic) {
+  // Paywall-/Zugangsauszeichnung: der Anrisstext ist frei, der Rest nicht.
+  articleJsonLd.hasPart = {
+    "@type": "WebPageElement",
+    isAccessibleForFree: false,
+    cssSelector: ".body",
+  };
+}
+
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Archiv", item: site },
+    { "@type": "ListItem", position: 2, name: part, item: `${site}/teil/${partSlug}` },
+    { "@type": "ListItem", position: 3, name: category, item: `${site}/kategorie/${categorySlug}` },
+    { "@type": "ListItem", position: 4, name: title, item: url },
+  ],
+};
 ---
-<BaseLayout title={`${title} · psycast`} description={metaDescription} image={heroImage}>
+<BaseLayout
+  title={`${title} · psycast`}
+  description={metaDescription}
+  image={heroImage}
+  jsonLd={[articleJsonLd, breadcrumbJsonLd]}
+>
   <article class="article">
-    <p class="crumbs"><a href="/">Archiv</a> / <a href={`/kategorie/${categorySlug}`}>{category}</a></p>
+    <nav class="crumbs" aria-label="Pfad">
+      <a href="/">Archiv</a> <span aria-hidden="true">/</span>
+      <a href={`/teil/${partSlug}`}>{part}</a> <span aria-hidden="true">/</span>
+      <a href={`/kategorie/${categorySlug}`}>{category}</a>
+    </nav>
+
     {heroImage && <img class="hero" src={heroImage} alt={title} loading="lazy" />}
-    <h1>{title}</h1>
-    <p class="meta">
-      {category}{readingTime && <> · {readingTime}</>}
-    </p>
+
+    <header class="art-head">
+      <p class="eyebrow">{part}</p>
+      <h1>{title}</h1>
+      <p class="meta">
+        <span class="m-cat">{category}</span>
+        {readingTime && <><span class="dot" aria-hidden="true">·</span><span>{readingTime}</span></>}
+        {dateLabel && <><span class="dot" aria-hidden="true">·</span><time datetime={dateIso}>{dateLabel}</time></>}
+        <span class="dot" aria-hidden="true">·</span>
+        {isPublic
+          ? <span class="badge badge-open">frei lesbar</span>
+          : <span class="badge badge-gated">für eingeladene Gäste</span>}
+      </p>
+      {excerpt && <p class="abstract">{excerpt}</p>}
+    </header>
+
     <div class="body">
       <slot />
     </div>
+
     {tags?.length > 0 && (
-      <ul class="tags">
-        {tags.map((t) => <li>{t}</li>)}
-      </ul>
+      <nav class="tags" aria-label="Schlagwörter">
+        {tags.map((t) => (
+          <a href={`/suche?q=${encodeURIComponent(t)}`}>{t}</a>
+        ))}
+      </nav>
     )}
+
     <div class="provenance">
       <p>
         Ursprünglich veröffentlicht im
         <a href={originalUrl} target="_blank" rel="noopener noreferrer">Counselorakademie-Blog</a>.
+        Dieser Beitrag gehört zu <a href={`/teil/${partSlug}`}>{part}</a>.
       </p>
       <img class="qr" src={qrSrc} alt={`QR-Code zu ${title}`} width="120" height="120" loading="lazy" />
     </div>
+
+    {(prev || next) && (
+      <nav class="neighbours" aria-label="Weitere Beiträge in diesem Teil">
+        {prev
+          ? <a class="nb nb-prev" href={`/artikel/${prev.slug}`}><span>Vorheriger Beitrag</span><strong>{prev.title}</strong></a>
+          : <span class="nb nb-empty"></span>}
+        {next
+          ? <a class="nb nb-next" href={`/artikel/${next.slug}`}><span>Nächster Beitrag</span><strong>{next.title}</strong></a>
+          : <span class="nb nb-empty"></span>}
+      </nav>
+    )}
+
+    {related.length > 0 && (
+      <section class="related" aria-labelledby="rel-title">
+        <h2 id="rel-title">Verwandte Beiträge</h2>
+        <ul>
+          {related.map((r) => (
+            <li>
+              <a href={`/artikel/${r.slug}`}>
+                <span class="r-title">{r.title}</span>
+                <span class="r-meta">
+                  {r.category}{r.readingTime && ` · ${r.readingTime}`}
+                  {r.access === "public" && <span class="badge badge-open">frei</span>}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
   </article>
 </BaseLayout>
 
 <style>
-  .crumbs { color: var(--grey); font-size: 0.9rem; margin-bottom: 1rem; }
+  .article { max-width: 72ch; margin: 0 auto; }
+  .crumbs { color: var(--grey); font-size: 0.85rem; margin-bottom: 1.2rem; }
   .crumbs a { color: var(--grey); text-decoration: none; }
-  .hero { width: 100%; max-height: 380px; object-fit: cover; border-radius: 10px; margin-bottom: 1.5rem; }
-  h1 { font-size: 2rem; line-height: 1.25; margin: 0 0 0.5rem; }
-  .meta { color: var(--brown); font-weight: 600; margin-bottom: 1.5rem; }
-  .body { font-size: 1.05rem; }
-  .body :global(h2) { color: var(--green); margin-top: 2rem; }
-  .body :global(a) { color: var(--green); }
-  .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; list-style: none; padding: 0; margin: 2rem 0 0; }
-  .tags li {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 0.25rem 0.75rem;
-    font-size: 0.85rem;
-    color: var(--grey);
+  .crumbs a:hover { color: var(--green-dark); text-decoration: underline; }
+  .hero { width: 100%; max-height: 380px; object-fit: cover; border-radius: 12px; margin-bottom: 1.5rem; }
+
+  .art-head {
+    border-left: 4px solid var(--green); padding-left: 1.2rem; margin-bottom: 2rem;
   }
+  .eyebrow {
+    text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.7rem;
+    font-weight: 700; color: var(--brown); margin: 0 0 0.5rem;
+  }
+  h1 { font-size: clamp(1.7rem, 4vw, 2.3rem); line-height: 1.22; margin: 0 0 0.7rem; }
+  .meta {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0.45rem;
+    font-size: 0.82rem; color: var(--grey); margin: 0 0 0.9rem;
+  }
+  .m-cat { color: var(--green-dark); font-weight: 600; }
+  .dot { color: var(--border); }
+  .badge { font-size: 0.68rem; font-weight: 700; border-radius: 999px; padding: 0.15rem 0.55rem; }
+  .badge-open { background: var(--green-light); color: var(--green-dark); }
+  .badge-gated { background: var(--brown-light); color: #8a4a2c; }
+  .abstract {
+    font-size: 1rem; color: var(--grey); line-height: 1.65; margin: 0;
+    font-style: italic;
+  }
+
+  .body { font-size: 1.04rem; line-height: 1.75; }
+  .body :global(h2) {
+    color: var(--green-dark); margin-top: 2.4rem; font-size: 1.4rem;
+    background: var(--green-light); border-left: 4px solid var(--green);
+    padding: 0.5rem 0.9rem; border-radius: 0 8px 8px 0;
+  }
+  .body :global(h3) {
+    color: var(--green-dark); margin-top: 1.9rem; font-size: 1.15rem;
+    border-bottom: 1px solid var(--border); padding-bottom: 0.35rem;
+  }
+  .body :global(h4) { color: var(--brown); margin-top: 1.6rem; font-size: 1.02rem; }
+  .body :global(a) { color: var(--green-dark); }
+  .body :global(blockquote) {
+    border-left: 4px solid var(--brown); background: var(--brown-light);
+    margin: 1.5rem 0; padding: 0.9rem 1.1rem; border-radius: 0 8px 8px 0;
+    color: #6b4636; font-style: italic;
+  }
+  .body :global(blockquote p:last-child) { margin-bottom: 0; }
+  .body :global(table) {
+    width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.92rem;
+    display: block; overflow-x: auto;
+  }
+  .body :global(th) { background: var(--green); color: #fff; text-align: left; padding: 0.5rem 0.7rem; }
+  .body :global(td) { border: 1px solid var(--border); padding: 0.5rem 0.7rem; vertical-align: top; }
+  .body :global(tbody tr:nth-child(even) td) { background: var(--card); }
+  .body :global(hr) { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+  .body :global(img) { max-width: 100%; border-radius: 8px; }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 0.45rem; margin: 2.2rem 0 0; }
+  .tags a {
+    background: var(--card); border: 1px solid var(--border); border-radius: 999px;
+    padding: 0.28rem 0.8rem; font-size: 0.82rem; color: var(--grey); text-decoration: none;
+  }
+  .tags a:hover { border-color: var(--green); color: var(--green-dark); background: var(--green-light); }
+
   .provenance {
-    margin-top: 2.5rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-    color: var(--grey);
-    font-size: 0.9rem;
+    margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    flex-wrap: wrap; color: var(--grey); font-size: 0.88rem;
   }
+  .provenance a { color: var(--green-dark); }
   .qr { border-radius: 6px; }
+
+  .neighbours { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin-top: 2rem; }
+  .nb {
+    display: block; text-decoration: none; background: var(--card);
+    border: 1px solid var(--border); border-radius: 12px; padding: 0.9rem 1.1rem;
+    transition: border-color 0.14s ease, transform 0.14s ease;
+  }
+  .nb:hover { border-color: var(--green); transform: translateY(-2px); }
+  .nb span { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--brown); font-weight: 700; margin-bottom: 0.3rem; }
+  .nb strong { display: block; font-size: 0.92rem; color: var(--dark); font-weight: 500; line-height: 1.35; }
+  .nb-next { text-align: right; }
+  .nb-empty { border: none; background: none; }
+
+  .related { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+  .related h2 { font-size: 1.15rem; margin: 0 0 0.9rem; }
+  .related ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.5rem; }
+  .related a {
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+    text-decoration: none; background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 0.75rem 1rem; color: var(--dark);
+    transition: border-color 0.14s ease, transform 0.14s ease;
+  }
+  .related a:hover { border-color: var(--green); transform: translateY(-2px); }
+  .r-title { font-weight: 500; font-size: 0.95rem; }
+  .r-meta { font-size: 0.76rem; color: var(--grey); white-space: nowrap; display: flex; align-items: center; gap: 0.4rem; }
+
+  @media (max-width: 560px) {
+    .neighbours { grid-template-columns: 1fr; }
+    .nb-next { text-align: left; }
+    .nb-empty { display: none; }
+    .related a { flex-direction: column; align-items: flex-start; gap: 0.3rem; }
+  }
 </style>

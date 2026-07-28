@@ -1,0 +1,410 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+import { groupIntoParts } from "../lib/parts.js";
+import { slugify } from "../lib/slugify.js";
+
+const articles = await getCollection("articles");
+const parts = groupIntoParts(articles, slugify);
+const categories = [...new Set(articles.map((a) => a.data.category).filter(Boolean))]
+  .sort((a, b) => a.localeCompare(b, "de"));
+const publicCount = articles.filter((a) => a.data.access === "public").length;
+---
+<BaseLayout
+  title="Suche — psycast Archiv"
+  description={`Durchsuche alle ${articles.length} Beiträge des psycast-Archivs nach Titel, Thema, Kategorie und Schlagwort — mit Filtern nach Thementeil und Zugang.`}
+>
+  <div class="search-page">
+    <header class="search-head">
+      <p class="eyebrow">Archivsuche</p>
+      <h1>Alle {articles.length} Beiträge durchsuchen</h1>
+      <p class="lede">
+        Suche nach Titel, Thema, Kategorie oder Schlagwort. Bei den
+        {publicCount} frei lesbaren Beiträgen wird zusätzlich der vollständige
+        Text durchsucht.
+      </p>
+    </header>
+
+    <div class="search-box">
+      <svg class="search-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.8" />
+        <path d="M13.5 13.5 17 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+      </svg>
+      <input
+        type="search"
+        id="q"
+        placeholder="z. B. Bindung, Burnout, Rogers, Fallgeschichte …"
+        autocomplete="off"
+        aria-label="Suchbegriff"
+      />
+      <button type="button" id="clear" aria-label="Suche zurücksetzen" hidden>&times;</button>
+    </div>
+
+    <div class="filters">
+      <label class="field">
+        <span>Teil</span>
+        <select id="f-part">
+          <option value="">Alle Teile</option>
+          {parts.map((p) => <option value={p.name}>{p.roman}. {p.name}</option>)}
+        </select>
+      </label>
+      <label class="field">
+        <span>Kategorie</span>
+        <select id="f-cat">
+          <option value="">Alle Kategorien</option>
+          {categories.map((c) => <option value={c}>{c}</option>)}
+        </select>
+      </label>
+      <label class="field">
+        <span>Zugang</span>
+        <select id="f-access">
+          <option value="">Alle Beiträge</option>
+          <option value="1">Frei lesbar</option>
+          <option value="0">Für Gäste</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>Sortierung</span>
+        <select id="f-sort">
+          <option value="rel">Relevanz</option>
+          <option value="new">Neueste zuerst</option>
+          <option value="az">A–Z</option>
+        </select>
+      </label>
+      <button type="button" id="reset" class="reset">Zurücksetzen</button>
+    </div>
+
+    <p class="status" id="status" role="status" aria-live="polite">Suchindex wird geladen …</p>
+
+    <ul class="results" id="results"></ul>
+    <div class="more-wrap"><button type="button" id="more" class="more" hidden>Weitere Treffer anzeigen</button></div>
+  </div>
+
+  <script>
+    type Entry = {
+      s: string; t: string; c: string; p: string; g: string[];
+      a: 0 | 1; d: string; r: string; e: string; b?: string;
+    };
+
+    const input = document.getElementById("q") as HTMLInputElement;
+    const clearBtn = document.getElementById("clear") as HTMLButtonElement;
+    const resultsEl = document.getElementById("results")!;
+    const statusEl = document.getElementById("status")!;
+    const moreBtn = document.getElementById("more") as HTMLButtonElement;
+    const fPart = document.getElementById("f-part") as HTMLSelectElement;
+    const fCat = document.getElementById("f-cat") as HTMLSelectElement;
+    const fAccess = document.getElementById("f-access") as HTMLSelectElement;
+    const fSort = document.getElementById("f-sort") as HTMLSelectElement;
+    const resetBtn = document.getElementById("reset") as HTMLButtonElement;
+
+    const PAGE = 25;
+    let entries: Entry[] = [];
+    let shown = PAGE;
+    let current: Array<{ e: Entry; score: number; hit: string }> = [];
+
+    // Umlaute und Schärfen normalisieren, damit "Kranung" auch "Kränkung" findet
+    // und Groß-/Kleinschreibung keine Rolle spielt.
+    function norm(value: string) {
+      return value
+        .toLowerCase()
+        .replace(/ä/g, "a").replace(/ö/g, "o").replace(/ü/g, "u").replace(/ß/g, "ss")
+        .replace(/[^a-z0-9\s-]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function escapeHtml(value: string) {
+      return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    function fmtDate(iso: string) {
+      if (!iso) return "";
+      const d = new Date(iso);
+      return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString("de-AT", { year: "numeric", month: "long" });
+    }
+
+    // Textausschnitt rund um den ersten Treffer, Suchwörter hervorgehoben.
+    function snippet(entry: Entry, terms: string[]) {
+      const source = entry.b || entry.e || "";
+      if (!source) return "";
+      const hay = norm(source);
+      let at = -1;
+      for (const term of terms) {
+        const i = hay.indexOf(term);
+        if (i !== -1 && (at === -1 || i < at)) at = i;
+      }
+      let text: string;
+      if (at === -1) {
+        text = source.slice(0, 220);
+      } else {
+        const start = Math.max(0, at - 90);
+        text = (start > 0 ? "… " : "") + source.slice(start, start + 260);
+      }
+      let html = escapeHtml(text.trim()) + (source.length > text.length ? " …" : "");
+      for (const term of terms) {
+        if (term.length < 3) continue;
+        // Auf dem normalisierten Text suchen, im Originaltext markieren:
+        // eine tolerante Regex über die Originalbuchstaben.
+        const pattern = term.split("").map((ch) => {
+          if (ch === "a") return "[aä]";
+          if (ch === "o") return "[oö]";
+          if (ch === "u") return "[uü]";
+          if (ch === "s") return "[sß]";
+          return ch.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        }).join("");
+        html = html.replace(new RegExp(`(${pattern})`, "gi"), "<mark>$1</mark>");
+      }
+      return html;
+    }
+
+    function score(entry: Entry, terms: string[]) {
+      const title = norm(entry.t);
+      const cat = norm(entry.c);
+      const part = norm(entry.p);
+      const tags = norm(entry.g.join(" "));
+      const excerpt = norm(entry.e);
+      const body = entry.b ? norm(entry.b) : "";
+
+      let total = 0;
+      for (const term of terms) {
+        let termScore = 0;
+        if (title.startsWith(term)) termScore += 60;
+        if (title.includes(term)) termScore += 40;
+        if (tags.includes(term)) termScore += 22;
+        if (cat.includes(term)) termScore += 18;
+        if (part.includes(term)) termScore += 10;
+        if (excerpt.includes(term)) termScore += 12;
+        if (body.includes(term)) termScore += 8;
+        // Alle Begriffe müssen irgendwo vorkommen (UND-Verknüpfung).
+        if (termScore === 0) return 0;
+        total += termScore;
+      }
+      // Frei lesbare Beiträge leicht bevorzugen - sie sind sofort nutzbar.
+      if (entry.a === 1) total += 4;
+      return total;
+    }
+
+    function run() {
+      const raw = input.value.trim();
+      const terms = norm(raw).split(" ").filter((t) => t.length >= 2);
+      clearBtn.hidden = raw.length === 0;
+
+      const part = fPart.value;
+      const cat = fCat.value;
+      const access = fAccess.value;
+
+      let list = entries.filter((e) => {
+        if (part && e.p !== part) return false;
+        if (cat && e.c !== cat) return false;
+        if (access !== "" && String(e.a) !== access) return false;
+        return true;
+      });
+
+      let scored: Array<{ e: Entry; score: number; hit: string }>;
+      if (terms.length === 0) {
+        scored = list.map((e) => ({ e, score: 0, hit: escapeHtml((e.e || "").slice(0, 200)) }));
+      } else {
+        scored = [];
+        for (const e of list) {
+          const s = score(e, terms);
+          if (s > 0) scored.push({ e, score: s, hit: snippet(e, terms) });
+        }
+      }
+
+      const sort = fSort.value;
+      scored.sort((a, b) => {
+        if (sort === "az") return a.e.t.localeCompare(b.e.t, "de");
+        if (sort === "new") return (b.e.d || "").localeCompare(a.e.d || "");
+        if (b.score !== a.score) return b.score - a.score;
+        return a.e.t.localeCompare(b.e.t, "de");
+      });
+
+      current = scored;
+      shown = PAGE;
+      render();
+
+      const q = new URLSearchParams();
+      if (raw) q.set("q", raw);
+      if (part) q.set("teil", part);
+      if (cat) q.set("kategorie", cat);
+      if (access !== "") q.set("zugang", access);
+      const qs = q.toString();
+      history.replaceState(null, "", qs ? `?${qs}` : location.pathname);
+    }
+
+    function render() {
+      const slice = current.slice(0, shown);
+      if (current.length === 0) {
+        resultsEl.innerHTML = "";
+        statusEl.textContent = input.value.trim()
+          ? `Keine Treffer für „${input.value.trim()}“. Andere Schreibweise oder weniger Filter versuchen.`
+          : "Keine Beiträge für diese Filter.";
+        moreBtn.hidden = true;
+        return;
+      }
+
+      statusEl.textContent = input.value.trim()
+        ? `${current.length} Treffer für „${input.value.trim()}“`
+        : `${current.length} Beiträge`;
+
+      resultsEl.innerHTML = slice.map((r) => {
+        const e = r.e;
+        const date = fmtDate(e.d);
+        const meta = [e.c, e.r, date].filter(Boolean).map(escapeHtml).join(" · ");
+        const badge = e.a === 1
+          ? '<span class="badge badge-open">frei lesbar</span>'
+          : '<span class="badge badge-gated">für Gäste</span>';
+        const tags = e.g.slice(0, 4).map((t) =>
+          `<span class="tag">${escapeHtml(t)}</span>`).join("");
+        return `<li class="result">
+          <a href="/artikel/${encodeURIComponent(e.s)}">
+            <div class="r-top"><span class="r-part">${escapeHtml(e.p)}</span>${badge}</div>
+            <h2>${escapeHtml(e.t)}</h2>
+            <p class="r-meta">${meta}</p>
+            ${r.hit ? `<p class="r-snip">${r.hit}</p>` : ""}
+            ${tags ? `<div class="r-tags">${tags}</div>` : ""}
+          </a>
+        </li>`;
+      }).join("");
+
+      moreBtn.hidden = current.length <= shown;
+    }
+
+    moreBtn.addEventListener("click", () => { shown += PAGE; render(); });
+    clearBtn.addEventListener("click", () => { input.value = ""; input.focus(); run(); });
+    resetBtn.addEventListener("click", () => {
+      input.value = ""; fPart.value = ""; fCat.value = ""; fAccess.value = ""; fSort.value = "rel";
+      run(); input.focus();
+    });
+
+    let timer: number | undefined;
+    input.addEventListener("input", () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(run, 120);
+    });
+    [fPart, fCat, fAccess, fSort].forEach((el) => el.addEventListener("change", run));
+
+    // Mit Pfeiltasten durch die Treffer, Enter öffnet den Beitrag.
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        resultsEl.querySelector<HTMLAnchorElement>("a")?.focus();
+      }
+    });
+    resultsEl.addEventListener("keydown", (event) => {
+      const key = (event as KeyboardEvent).key;
+      if (key !== "ArrowDown" && key !== "ArrowUp") return;
+      event.preventDefault();
+      const links = Array.from(resultsEl.querySelectorAll<HTMLAnchorElement>("a"));
+      const i = links.indexOf(document.activeElement as HTMLAnchorElement);
+      if (key === "ArrowDown") links[Math.min(i + 1, links.length - 1)]?.focus();
+      else if (i <= 0) input.focus();
+      else links[i - 1]?.focus();
+    });
+
+    async function boot() {
+      try {
+        const res = await fetch("/search-index.json");
+        const data = await res.json();
+        entries = data.entries as Entry[];
+
+        const params = new URLSearchParams(location.search);
+        input.value = params.get("q") ?? "";
+        fPart.value = params.get("teil") ?? "";
+        fCat.value = params.get("kategorie") ?? "";
+        fAccess.value = params.get("zugang") ?? "";
+
+        run();
+        if (!input.value) input.focus();
+      } catch {
+        statusEl.textContent = "Der Suchindex konnte nicht geladen werden. Bitte die Seite neu laden.";
+      }
+    }
+
+    boot();
+  </script>
+</BaseLayout>
+
+<style>
+  .search-page { max-width: 860px; margin: 0 auto; }
+  .search-head { margin-bottom: 1.6rem; }
+  .eyebrow {
+    text-transform: uppercase; letter-spacing: 0.13em; font-size: 0.7rem;
+    font-weight: 700; color: var(--brown); margin: 0 0 0.5rem;
+  }
+  .search-head h1 { font-size: clamp(1.8rem, 4vw, 2.4rem); margin: 0 0 0.6rem; }
+  .lede { color: var(--grey); margin: 0; max-width: 60ch; }
+
+  .search-box {
+    position: relative; display: flex; align-items: center;
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    box-shadow: var(--shadow-soft); padding: 0 1rem; margin-bottom: 0.9rem;
+  }
+  .search-box:focus-within { border-color: var(--green); box-shadow: var(--shadow-lift); }
+  .search-icon { width: 20px; height: 20px; color: var(--grey); flex: 0 0 auto; }
+  .search-box input {
+    flex: 1; border: none; background: none; padding: 1rem 0.8rem;
+    font-size: 1.05rem; font-family: inherit; color: var(--dark); outline: none;
+  }
+  .search-box button {
+    border: none; background: none; color: var(--grey); font-size: 1.5rem;
+    cursor: pointer; line-height: 1; padding: 0 0.2rem;
+  }
+  .search-box button:hover { color: var(--dark); }
+
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.7rem; align-items: flex-end; margin-bottom: 1.2rem;
+  }
+  .field { display: flex; flex-direction: column; gap: 0.3rem; flex: 1 1 150px; }
+  .field span { font-size: 0.75rem; color: var(--grey); font-weight: 600; }
+  .field select {
+    padding: 0.5rem 0.6rem; border: 1px solid var(--border); border-radius: 8px;
+    font-family: inherit; font-size: 0.88rem; background: var(--card); color: var(--dark);
+  }
+  .field select:focus { border-color: var(--green); outline: none; }
+  .reset {
+    border: 1px solid var(--border); background: var(--card); color: var(--dark);
+    border-radius: 8px; padding: 0.5rem 0.9rem; font-size: 0.85rem; font-family: inherit;
+    font-weight: 600; cursor: pointer;
+  }
+  .reset:hover { border-color: var(--green); background: var(--green-light); }
+
+  .status { font-size: 0.9rem; color: var(--grey); margin: 0 0 1rem; }
+
+  .results { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.7rem; }
+  .result a {
+    display: block; text-decoration: none; color: inherit;
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1rem 1.15rem; transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease;
+  }
+  .result a:hover, .result a:focus-visible {
+    transform: translateY(-2px); box-shadow: var(--shadow-lift); border-color: var(--green);
+  }
+  .r-top { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.4rem; }
+  .r-part { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--brown); font-weight: 700; }
+  .badge { font-size: 0.68rem; font-weight: 700; border-radius: 999px; padding: 0.15rem 0.55rem; white-space: nowrap; }
+  .badge-open { background: var(--green-light); color: var(--green-dark); }
+  .badge-gated { background: var(--brown-light); color: #8a4a2c; }
+  .result h2 { font-size: 1.08rem; margin: 0 0 0.3rem; line-height: 1.3; color: var(--dark); }
+  .r-meta { font-size: 0.78rem; color: var(--grey); margin: 0 0 0.45rem; }
+  .r-snip { font-size: 0.88rem; color: var(--grey); margin: 0; line-height: 1.55; }
+  .r-snip :global(mark) { background: #fbeccd; color: var(--dark); padding: 0 0.1em; border-radius: 2px; }
+  .r-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.6rem; }
+  .tag {
+    font-size: 0.72rem; color: var(--grey); background: var(--bg);
+    border: 1px solid var(--border); border-radius: 999px; padding: 0.12rem 0.5rem;
+  }
+
+  .more-wrap { display: flex; justify-content: center; margin-top: 1.2rem; }
+  .more {
+    border: 1px solid var(--border); background: var(--card); color: var(--dark);
+    border-radius: 999px; padding: 0.65rem 1.4rem; font-family: inherit; font-size: 0.9rem;
+    font-weight: 600; cursor: pointer;
+  }
+  .more:hover { border-color: var(--green); background: var(--green-light); }
+
+  @media (max-width: 560px) {
+    .field { flex: 1 1 100%; }
+    .reset { width: 100%; }
+  }
+</style>

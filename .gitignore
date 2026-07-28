@@ -36,3 +36,8 @@ pnpm-debug.log*
 .netlify
 .book-preview/
 dist-fresh/
+
+# Beim Build erzeugt (siehe npm run build)
+public/search-index.json
+public/llms.txt
+public/robots.txt

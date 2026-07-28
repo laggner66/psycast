@@ -2,8 +2,27 @@
 import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { slugify } from "../lib/slugify.js";
+import { groupIntoParts } from "../lib/parts.js";
 
 const articles = await getCollection("articles");
+const parts = groupIntoParts(articles, slugify);
+const publicCount = articles.filter((a) => a.data.access === "public").length;
+const site = "https://psycast.netlify.app";
+
+const collectionJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "psycast — Artikel-Archiv der Counselorakademie",
+  description: `Archiv mit ${articles.length} Fachbeiträgen zu Lebens- und Sozialberatung, Mentaltraining, Mediation und Supervision, gegliedert in ${parts.length} thematische Teile.`,
+  url: site,
+  inLanguage: "de-AT",
+  hasPart: parts.map((p) => ({
+    "@type": "CollectionPage",
+    name: p.name,
+    description: p.description,
+    url: `${site}/teil/${p.slug}`,
+  })),
+};
 
 const categoryMap = new Map();
 for (const a of articles) {
@@ -22,7 +41,8 @@ const recent = [...articles]
 ---
 <BaseLayout
   title="psycast — Artikel-Archiv der Counselorakademie"
-  description="Unabhängiges Archiv aller Blogartikel der Counselorakademie: Lebens- und Sozialberatung, Mentaltraining, Mediation und mehr — mit QR-Codes und druckfähiger Broschüre."
+  description={`Archiv mit ${articles.length} Fachbeiträgen zu Lebens- und Sozialberatung, Mentaltraining, Mediation, Supervision und Selbstmitgefühl — gegliedert in ${parts.length} thematische Teile, mit Volltextsuche.`}
+  jsonLd={[collectionJsonLd]}
 >
   <section class="hero">
     <div class="hero-copy">
@@ -40,13 +60,28 @@ const recent = [...articles]
         </div>
         <div class="stat-sep" aria-hidden="true"></div>
         <div class="stat">
+          <span class="stat-num">{parts.length}</span>
+          <span class="stat-label">Teile</span>
+        </div>
+        <div class="stat-sep" aria-hidden="true"></div>
+        <div class="stat">
           <span class="stat-num">{categories.length}</span>
           <span class="stat-label">Kategorien</span>
         </div>
       </div>
+      <form class="hero-search" action="/suche" method="get" role="search">
+        <label class="visually-hidden" for="hero-q">Archiv durchsuchen</label>
+        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.8" />
+          <path d="M13.5 13.5 17 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+        <input id="hero-q" type="search" name="q" placeholder="Archiv durchsuchen — z. B. Bindung, Burnout, Rogers …" autocomplete="off" />
+        <button type="submit">Suchen</button>
+      </form>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="/zugang-anfragen">Zugang anfragen</a>
-        <a class="btn btn-ghost" href="/login">Bereits eingeladen? Einloggen</a>
+        <a class="btn btn-primary" href="/teile">Gliederung ansehen</a>
+        <a class="btn btn-ghost" href="/zugang-anfragen">Zugang anfragen</a>
+        <a class="btn btn-ghost" href="/login">Einloggen</a>
       </div>
       <p class="gate-note">
         <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 9V6.5a5 5 0 0 1 10 0V9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="3.5" y="9" width="13" height="8.5" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>
@@ -55,9 +90,28 @@ const recent = [...articles]
     </div>
   </section>
 
+  <section class="parts-section">
+    <div class="section-head">
+      <h2>Thematische Gliederung</h2>
+      <a class="section-link" href="/teile">Alle Teile im Detail</a>
+    </div>
+    <ol class="parts-grid">
+      {parts.map((part) => (
+        <li>
+          <a href={`/teil/${part.slug}`}>
+            <span class="pg-roman">Teil {part.roman}</span>
+            <span class="pg-name">{part.name}</span>
+            <span class="pg-desc">{part.description}</span>
+            <span class="pg-count">{part.articles.length} Beiträge</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </section>
+
   <section class="toc">
     <div class="section-head">
-      <h2>Inhaltsverzeichnis</h2>
+      <h2>Kategorien</h2>
       <span class="section-sub">Nach Themengebiet geordnet</span>
     </div>
     <ul class="toc-grid">
@@ -150,9 +204,60 @@ const recent = [...articles]
   }
   .gate-note svg { flex: 0 0 auto; width: 18px; height: 18px; color: var(--brown); margin-top: 0.1rem; }
 
+  .visually-hidden {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  .hero-search {
+    display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.4rem;
+    background: var(--card); border: 1px solid var(--border); border-radius: 999px;
+    padding: 0.35rem 0.4rem 0.35rem 1.1rem; max-width: 34rem; box-shadow: var(--shadow-soft);
+  }
+  .hero-search:focus-within { border-color: var(--green); box-shadow: var(--shadow-lift); }
+  .hero-search svg { width: 18px; height: 18px; color: var(--grey); flex: 0 0 auto; }
+  .hero-search input {
+    flex: 1; min-width: 0; border: none; background: none; outline: none;
+    font-family: inherit; font-size: 0.95rem; color: var(--dark); padding: 0.5rem 0;
+  }
+  .hero-search button {
+    flex: 0 0 auto; border: none; background: var(--green); color: #fff;
+    border-radius: 999px; padding: 0.6rem 1.2rem; font-family: inherit;
+    font-size: 0.88rem; font-weight: 600; cursor: pointer;
+  }
+  .hero-search button:hover { background: var(--green-dark); }
+
   .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 1.1rem; flex-wrap: wrap; }
   .section-head h2 { color: var(--dark); font-size: 1.5rem; margin: 0; }
   .section-sub { color: var(--grey); font-size: 0.85rem; }
+  .section-link { color: var(--green-dark); font-size: 0.85rem; font-weight: 600; text-decoration: none; }
+  .section-link:hover { text-decoration: underline; }
+
+  .parts-section { margin-top: 3rem; }
+  .parts-grid {
+    list-style: none; padding: 0; margin: 0; display: grid; gap: 0.8rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+  .parts-grid a {
+    display: flex; flex-direction: column; height: 100%; position: relative;
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 1.1rem 1.2rem 1.1rem 1.5rem; text-decoration: none; color: var(--dark);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .parts-grid a::before {
+    content: ""; position: absolute; left: 0; top: 0.9rem; bottom: 0.9rem;
+    width: 4px; border-radius: 4px; background: var(--brown);
+  }
+  .parts-grid a:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); border-color: var(--green); }
+  .pg-roman {
+    font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.14em;
+    font-weight: 700; color: var(--green-dark); margin-bottom: 0.35rem;
+  }
+  .pg-name { font-family: var(--font-display); font-size: 1.08rem; font-weight: 600; margin-bottom: 0.45rem; line-height: 1.3; }
+  .pg-desc { font-size: 0.84rem; color: var(--grey); line-height: 1.55; flex: 1; }
+  .pg-count {
+    margin-top: 0.8rem; font-size: 0.72rem; font-weight: 700; color: var(--green-dark);
+    background: var(--green-light); border-radius: 999px; padding: 0.18rem 0.6rem; align-self: flex-start;
+  }
 
   .toc { margin-top: 3rem; }
   .toc-grid {

@@ -10,7 +10,9 @@
     "qrcodes": "node scripts/generate-qrcodes.mjs",
     "brochure": "node scripts/generate-brochure.mjs",
     "book": "node scripts/generate-book.mjs",
-    "build": "node scripts/generate-qrcodes.mjs && node scripts/generate-access-manifest.mjs && astro build",
+    "search-index": "node scripts/generate-search-index.mjs",
+    "ai-files": "node scripts/generate-ai-files.mjs",
+    "build": "node scripts/generate-qrcodes.mjs && node scripts/generate-access-manifest.mjs && node scripts/generate-search-index.mjs && node scripts/generate-ai-files.mjs && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
