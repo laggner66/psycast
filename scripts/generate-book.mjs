@@ -367,7 +367,7 @@ const CSS2 = `
 
   /* ---- Artikel laufen fortlaufend weiter, kein Seitenumbruch davor ---- */
   .article { margin: 0; }
-  .article + .article { margin-top: 6.5mm; }
+  .article + .article { margin-top: 9mm; }
 
   /* Artikelkopf über voller Breite, farbig hinterlegt: gibt jedem Beitrag
      einen klaren, ruhigen Anfang und hilft beim Blättern. */
@@ -403,15 +403,16 @@ const CSS2 = `
     text-align: justify;
     hyphens: auto;
     -webkit-hyphens: auto;
-    orphans: 3;
-    widows: 3;
+    /* Großzügig gewählt: nie weniger als vier Zeilen eines Absatzes allein am
+       Spalten- oder Seitenfuß bzw. -kopf. Seitenzahl ist zweitrangig. */
+    orphans: 4;
+    widows: 4;
   }
   .art-body > :first-child { margin-top: 0; }
-  /* Der Anfangsabsatz darf nicht als Zweizeiler am Seitenfuß hängen bleiben:
-     passen keine 4 Zeilen mehr, rückt er samt Initial und Artikelkopf auf die
-     nächste Seite. Das kostet etwas Weißraum, verhindert aber angerissene
-     Artikelanfänge. */
-  .art-body > p:first-of-type { orphans: 4; widows: 4; }
+  /* Ein Artikel beginnt nur, wenn wirklich Platz dafür da ist: passen keine
+     sechs Zeilen des Anfangsabsatzes mehr auf die Seite, rückt er samt Initial
+     und Artikelkopf komplett auf die nächste. */
+  .art-body > p:first-of-type { orphans: 6; widows: 4; }
   /* Initial im ersten Absatz jedes Artikels - in Terrakotta als Farbakzent */
   .art-body > p:first-of-type::first-letter {
     float: left; font-size: 27pt; line-height: 0.86; color: #a8623f;
@@ -436,7 +437,13 @@ const CSS2 = `
   }
   .art-body h4 { font-size: 9.6pt; color: #a8623f; margin: 3.5mm 0 1mm; font-weight: bold; }
   .art-body h5, .art-body h6 { font-size: 9.4pt; color: #4a5a55; margin: 3mm 0 1mm; font-weight: bold; }
-  .art-body p { margin: 0 0 2.4mm; orphans: 3; widows: 3; }
+  /* Doppelte Absicherung: Chrome beachtet mal "break-after" auf der Überschrift,
+     mal "break-before" auf dem Folgeelement. Beides zu setzen hält Überschrift
+     und zugehörigen Text zuverlässiger zusammen. */
+  .art-body :is(h2, h3, h4, h5, h6) + :is(p, ul, ol, blockquote, table, pre) {
+    break-before: avoid; page-break-before: avoid;
+  }
+  .art-body p { margin: 0 0 2.4mm; orphans: 4; widows: 4; }
   .art-body ul, .art-body ol { margin: 0 0 2.4mm; padding-left: 5mm; text-align: left; }
   /* Einzelne Listenpunkte nie über einen Spalten- oder Seitenwechsel zerreißen. */
   .art-body li { margin-bottom: 0.9mm; break-inside: avoid; page-break-inside: avoid; }
