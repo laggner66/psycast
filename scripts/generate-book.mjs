@@ -272,8 +272,51 @@ const CSS = `
     font-size: 9pt; letter-spacing: 2.4pt; text-transform: uppercase;
     color: rgba(244,241,233,.78); margin: 0;
   }
-  /* Leere Seite 1 im Buchsatz; wird später durch das echte Cover ersetzt. */
+  /* Leerseiten im Buchsatz; werden später durch Cover (U1) bzw. Rückseite (U4)
+     ersetzt. Sie halten nur den Platz, damit die Seitenzahlen stimmen. */
   .cover-placeholder { height: 1mm; page-break-after: always; break-after: page; }
+  .backcover-placeholder { height: 1mm; page-break-before: always; break-before: page; }
+
+  /* ---- Rückseite U4: gleiche Bildsprache wie U1, Bund gespiegelt ---- */
+  .backcover { }
+  .backcover .cover-spine { left: auto; right: 0; }
+  .backcover .cover-spine::after { left: auto; right: 9mm; }
+  .backcover .cover-motif { right: auto; left: -40mm; top: -46mm; bottom: auto; }
+  .backcover .cover-inner { padding-left: 0; padding-right: 6mm; }
+  .bc-lead {
+    font-size: 13pt; line-height: 1.5; color: #ffffff; margin: 0 0 7mm;
+    max-width: 122mm; font-style: italic;
+  }
+  .bc-text {
+    font-size: 10.2pt; line-height: 1.62; color: rgba(244,241,233,.90);
+    margin: 0 0 4mm; max-width: 122mm;
+  }
+  .bc-parts-title {
+    font-size: 8pt; letter-spacing: 2.2pt; text-transform: uppercase;
+    color: #e9c9b4; margin: 0 0 3mm;
+  }
+  .bc-parts {
+    list-style: none; margin: 0 0 6mm; padding: 0;
+    columns: 2; column-gap: 9mm;
+  }
+  .bc-parts li {
+    font-size: 9pt; line-height: 1.42; color: rgba(244,241,233,.92);
+    margin-bottom: 1.6mm; break-inside: avoid; padding-left: 5.5mm; position: relative;
+  }
+  .bc-parts li span {
+    position: absolute; left: 0; color: #d99a76; font-size: 7.6pt; top: 0.5mm;
+  }
+  .bc-foot {
+    border-top: 0.3mm solid rgba(244,241,233,.30); padding-top: 5mm;
+    display: flex; justify-content: space-between; align-items: flex-end; gap: 8mm;
+  }
+  .bc-foot-note { font-size: 8.4pt; line-height: 1.5; color: rgba(244,241,233,.72); margin: 0; max-width: 92mm; }
+  .bc-mark { text-align: right; }
+  .bc-mark-name { font-size: 12.5pt; color: #ffffff; margin: 0 0 1mm; }
+  .bc-mark-pub {
+    font-size: 7.6pt; letter-spacing: 2pt; text-transform: uppercase;
+    color: rgba(244,241,233,.78); margin: 0;
+  }
 
   /* ---- Impressum / Über dieses Buch ---- */
   .frontmatter { page-break-after: always; padding-top: 24mm; font-size: 9.8pt; color: #445049;
@@ -326,20 +369,26 @@ const CSS2 = `
   .article { margin: 0; }
   .article + .article { margin-top: 6.5mm; }
 
-  /* Artikelkopf über der voller Breite; Spalten stecken im Artikelkörper. */
+  /* Artikelkopf über voller Breite, farbig hinterlegt: gibt jedem Beitrag
+     einen klaren, ruhigen Anfang und hilft beim Blättern. */
   .art-head {
     break-after: avoid-page;
     page-break-after: avoid;
     break-inside: avoid;
-    border-top: 0.4mm solid #2f6f68;
-    padding-top: 2.5mm;
-    margin-bottom: 3.5mm;
+    background: linear-gradient(90deg, #eef3f1 0%, #f7f5f0 78%, #ffffff 100%);
+    border-left: 1.6mm solid #2f6f68;
+    border-top: 0.25mm solid #d6e0dc;
+    border-bottom: 0.25mm solid #d6e0dc;
+    padding: 3mm 4mm 3mm 4mm;
+    margin-bottom: 4mm;
     text-align: left;
   }
-  .part-divider + .article > .art-head { border-top: none; padding-top: 0; }
-  .art-eyebrow { font-size: 7.5pt; color: #b87a5b; text-transform: uppercase; letter-spacing: 0.6pt; margin: 0 0 1mm; }
-  .art-head h1 { font-size: 15pt; color: #17211f; margin: 0 0 1.5mm; line-height: 1.25; font-weight: normal; }
-  .art-meta { font-size: 8pt; color: #53615d; margin: 0; font-style: italic; }
+  .art-eyebrow {
+    font-size: 7.5pt; color: #a8623f; text-transform: uppercase;
+    letter-spacing: 0.9pt; margin: 0 0 1.2mm; font-weight: bold;
+  }
+  .art-head h1 { font-size: 15pt; color: #12332e; margin: 0 0 1.5mm; line-height: 1.25; font-weight: normal; }
+  .art-meta { font-size: 8pt; color: #5c6b66; margin: 0; font-style: italic; }
 
   /* ---- Zweispaltiger Satz: füllt jede Seite vollständig ---- */
   .art-body {
@@ -355,37 +404,70 @@ const CSS2 = `
     widows: 3;
   }
   .art-body > :first-child { margin-top: 0; }
-  /* Initial im ersten Absatz jedes Artikels */
+  /* Initial im ersten Absatz jedes Artikels - in Terrakotta als Farbakzent */
   .art-body > p:first-of-type::first-letter {
-    float: left; font-size: 26pt; line-height: 0.86; color: #2f6f68;
-    padding: 0.6mm 1.2mm 0 0; font-weight: normal;
+    float: left; font-size: 27pt; line-height: 0.86; color: #a8623f;
+    padding: 0.6mm 1.4mm 0 0; font-weight: normal;
   }
   /* Zwischentitel niemals im Blocksatz - sonst reißen die Wortabstände auf. */
   .art-body h2, .art-body h3, .art-body h4, .art-body h5, .art-body h6 {
     text-align: left; hyphens: none; -webkit-hyphens: none;
     break-after: avoid-page; page-break-after: avoid; }
-  .art-body h2 { font-size: 11pt; color: #2f6f68; margin: 4.5mm 0 1.5mm; font-weight: bold; }
-  .art-body h3 { font-size: 10pt; color: #2f6f68; margin: 4mm 0 1.5mm; font-weight: bold; }
-  .art-body h4 { font-size: 9.6pt; color: #445049; margin: 3.5mm 0 1mm; font-weight: bold; }
-  .art-body h5, .art-body h6 { font-size: 9.4pt; color: #445049; margin: 3mm 0 1mm; font-weight: bold; }
+  /* Erste Gliederungsebene mit farbiger Unterlegung, zweite mit Akzentstrich */
+  .art-body h2 {
+    font-size: 11pt; color: #12332e; margin: 5mm 0 2mm; font-weight: bold;
+    background: #e4efec; border-left: 1mm solid #2f6f68;
+    padding: 1.4mm 2mm 1.4mm 2.2mm;
+  }
+  .art-body h3 {
+    font-size: 10pt; color: #22574e; margin: 4mm 0 1.5mm; font-weight: bold;
+    border-bottom: 0.3mm solid #cfe0da; padding-bottom: 0.9mm;
+  }
+  .art-body h4 { font-size: 9.6pt; color: #a8623f; margin: 3.5mm 0 1mm; font-weight: bold; }
+  .art-body h5, .art-body h6 { font-size: 9.4pt; color: #4a5a55; margin: 3mm 0 1mm; font-weight: bold; }
   .art-body p { margin: 0 0 2.4mm; }
   .art-body ul, .art-body ol { margin: 0 0 2.4mm; padding-left: 5mm; text-align: left; }
-  .art-body li { margin-bottom: 0.8mm; }
-  .art-body strong { color: #17211f; }
-  .art-body a { color: #2f6f68; text-decoration: none; }
-  .art-body blockquote { border-left: 0.5mm solid #b87a5b; margin: 2.4mm 0; padding: 0.5mm 0 0.5mm 3mm;
-    color: #445049; font-style: italic; text-align: left; break-inside: avoid; }
-  .art-body table { width: 100%; border-collapse: collapse; margin: 2.4mm 0; font-size: 8pt;
+  .art-body li { margin-bottom: 0.9mm; }
+  /* Farbige Aufzählungspunkte statt schwarzer Standardpunkte */
+  .art-body ul { list-style: none; padding-left: 4.5mm; }
+  .art-body ul > li { position: relative; padding-left: 3mm; }
+  .art-body ul > li::before {
+    content: "";
+    position: absolute; left: 0; top: 1.6mm;
+    width: 1.5mm; height: 1.5mm; border-radius: 50%; background: #b87a5b;
+  }
+  .art-body ol > li::marker { color: #2f6f68; font-weight: bold; }
+  .art-body strong { color: #12332e; }
+  .art-body em { color: #3c4b46; }
+  .art-body a { color: #22574e; text-decoration: none; }
+  /* Zitate als ruhig getöntes Feld */
+  .art-body blockquote {
+    border-left: 1mm solid #b87a5b; background: #faf1ea;
+    margin: 3mm 0; padding: 2mm 2.5mm 2mm 3mm;
+    color: #5a4034; font-style: italic; text-align: left; break-inside: avoid;
+  }
+  .art-body blockquote p:last-child { margin-bottom: 0; }
+  .art-body table { width: 100%; border-collapse: collapse; margin: 3mm 0; font-size: 8pt;
     text-align: left; break-inside: avoid; }
-  .art-body th, .art-body td { border: 0.15mm solid #cbd3d0; padding: 1mm 1.4mm; text-align: left; vertical-align: top; }
-  .art-body th { background: #f2f5f3; }
+  .art-body th, .art-body td { border: 0.15mm solid #c6d5cf; padding: 1.2mm 1.6mm; text-align: left; vertical-align: top; }
+  .art-body th { background: #2f6f68; color: #ffffff; font-weight: bold; border-color: #2f6f68; }
+  .art-body tbody tr:nth-child(even) td { background: #f2f6f4; }
   .art-body img { max-width: 100%; }
-  .art-body hr { border: none; border-top: 0.15mm solid #cbd3d0; margin: 3mm 0; }
-  .art-body pre { white-space: pre-wrap; word-wrap: break-word; font-size: 8pt; text-align: left; }
+  .art-body hr { border: none; border-top: 0.3mm solid #d9e3df; margin: 3.5mm 0; }
+  .art-body pre {
+    white-space: pre-wrap; word-wrap: break-word; font-size: 8pt; text-align: left;
+    background: #f2f6f4; border-left: 0.8mm solid #9bb5ac; padding: 1.8mm 2mm; break-inside: avoid;
+  }
+  .art-body code { color: #8a4a2c; }
 `;
 
-// Eigenständiges, randloses Cover-Dokument (wird mit Seitenrand 0 gerendert).
-function buildCoverHtml() {
+// Randloses Umschlag-Dokument: Seite 1 = U1 (Cover), Seite 2 = U4 (Rückseite).
+// Wird mit Seitenrand 0 gerendert und danach ins Buch eingesetzt.
+function buildCoversHtml() {
+  const partItems = orderedParts
+    .map((p) => `<li><span>${p.roman}</span>${esc(p.name)}</li>`)
+    .join("\n        ");
+
   return `<!doctype html>
 <html lang="de"><head><meta charset="utf-8" /><style>${CSS}</style></head>
 <body>
@@ -408,6 +490,39 @@ function buildCoverHtml() {
       </div>
       <p class="cover-author">Thomas Laggner</p>
       <p class="cover-pub">Counselorakademie</p>
+    </div>
+  </div>
+
+  <div class="cover backcover">
+    <div class="cover-spine"></div>
+    <div class="cover-motif"></div>
+    <div class="cover-inner">
+      <p class="cover-eyebrow">Rückseite · Archivausgabe</p>
+      <div class="cover-rule"></div>
+      <p class="bc-lead">Ein Nachschlagewerk aus der täglichen Praxis der
+      Beratung — gesammelt, geordnet und dauerhaft gesichert.</p>
+      <p class="bc-text">Dieses Buch versammelt ${usedEntries.length} Beiträge aus dem Blog der
+      Counselorakademie. Aus einzelnen Artikeln, über Jahre entstanden, wurde ein
+      zusammenhängendes Werk: neu gegliedert in ${orderedParts.length} thematische Teile, vom
+      Menschenbild und den Grundlagen über Fallgeschichten und Methoden bis zu
+      Fragen von Ausbildung, Supervision und Praxisführung.</p>
+      <p class="bc-text">Gedacht als Begleiter für Lebens- und Sozialberatung,
+      Mentaltraining, Mediation und Psychoedukation — zum Nachschlagen, zum
+      Vorbereiten, zum Weiterdenken.</p>
+      <div class="cover-spacer"></div>
+      <p class="bc-parts-title">Die Teile dieses Buches</p>
+      <ul class="bc-parts">
+        ${partItems}
+      </ul>
+      <div class="bc-foot">
+        <p class="bc-foot-note">Die Inhalte dienen Reflexion, Orientierung und Weiterbildung.
+        Sie ersetzen keine Psychotherapie, medizinische Behandlung, Diagnostik
+        oder Krisenhilfe.</p>
+        <div class="bc-mark">
+          <p class="bc-mark-name">psycast</p>
+          <p class="bc-mark-pub">Counselorakademie</p>
+        </div>
+      </div>
     </div>
   </div>
 </body></html>`;
@@ -443,6 +558,7 @@ function buildHtml(pageNo) {
   ${tocHtml(pageNo)}
   </div>
   ${contentHtml}
+  <div class="backcover-placeholder"></div>
 </body></html>`;
 }
 
@@ -471,10 +587,10 @@ async function renderPdf(html, htmlPath, pdfPath) {
   await browser.close();
 }
 
-// Cover separat rendern: Seitenrand 0 und keine Kopf-/Fußzeile, damit die
-// Farbfläche bis an den Papierrand läuft und keine Seitenzahl darauf liegt.
+// Umschlagseiten separat rendern: Seitenrand 0 und keine Kopf-/Fußzeile, damit
+// die Farbflächen bis an den Papierrand laufen und keine Seitenzahl darauf liegt.
 async function renderCoverPdf(htmlPath, pdfPath) {
-  writeFileSync(htmlPath, buildCoverHtml(), "utf8");
+  writeFileSync(htmlPath, buildCoversHtml(), "utf8");
   const browser = await puppeteer.launch({
     executablePath: CHROME_PATH,
     headless: true,
@@ -494,19 +610,31 @@ async function renderCoverPdf(htmlPath, pdfPath) {
   await browser.close();
 }
 
-// Platzhalterseite 1 des Buchsatzes durch die gerenderte Coverseite ersetzen.
-// Die Seitenanzahl bleibt dabei unverändert, deshalb stimmen die im Messlauf
-// ermittelten Seitenzahlen des Inhaltsverzeichnisses weiterhin.
-async function replaceFirstPageWithCover(bookPath, coverPath) {
+// Die beiden Platzhalterseiten des Buchsatzes (erste und letzte) durch die
+// gerenderten Umschlagseiten U1 und U4 ersetzen. Die Seitenanzahl bleibt dabei
+// unverändert, deshalb stimmen die im Messlauf ermittelten Seitenzahlen des
+// Inhaltsverzeichnisses weiterhin.
+async function replaceCoverPages(bookPath, coverPath) {
   const { PDFDocument } = await import("pdf-lib");
   const book = await PDFDocument.load(readFileSync(bookPath));
-  const cover = await PDFDocument.load(readFileSync(coverPath));
+  const covers = await PDFDocument.load(readFileSync(coverPath));
+
+  if (covers.getPageCount() < 2) {
+    throw new Error(
+      `Umschlag-PDF hat ${covers.getPageCount()} statt 2 Seiten (U1 und U4).`,
+    );
+  }
 
   const out = await PDFDocument.create();
-  const [coverPage] = await out.copyPages(cover, [0]);
-  out.addPage(coverPage);
-  const rest = await out.copyPages(book, book.getPageIndices().slice(1));
-  for (const page of rest) out.addPage(page);
+  const [front, back] = await out.copyPages(covers, [0, 1]);
+  out.addPage(front);
+
+  // Innenteil ohne erste und letzte Seite (das sind die Platzhalter).
+  const inner = book.getPageIndices().slice(1, -1);
+  const innerPages = await out.copyPages(book, inner);
+  for (const page of innerPages) out.addPage(page);
+
+  out.addPage(back);
 
   writeFileSync(bookPath, await out.save());
   return out.getPageCount();
@@ -603,19 +731,19 @@ async function main() {
   }
   console.log(`Vollständigkeit geprüft: alle ${seq.length} Abschnitte sind im PDF enthalten.`);
 
-  console.log("Cover wird gesetzt...");
+  console.log("Umschlag (U1 und U4) wird gesetzt...");
   const coverPdf = path.join(tmpDir, "cover.pdf");
   await renderCoverPdf(path.join(tmpDir, "cover.html"), coverPdf);
-  const pagesAfter = await replaceFirstPageWithCover(outPath, coverPdf);
+  const pagesAfter = await replaceCoverPages(outPath, coverPdf);
   if (pagesAfter !== final.numPages) {
     console.error(
-      `FEHLER: Seitenzahl hat sich beim Einsetzen des Covers geändert ` +
+      `FEHLER: Seitenzahl hat sich beim Einsetzen des Umschlags geändert ` +
         `(${final.numPages} -> ${pagesAfter}). Die Seitenzahlen im Inhaltsverzeichnis wären falsch.`,
     );
     process.exitCode = 1;
     return;
   }
-  console.log(`Cover eingesetzt. Fertig: ${pagesAfter} Seiten.`);
+  console.log(`Umschlag eingesetzt. Fertig: ${pagesAfter} Seiten (U1 + Innenteil + U4).`);
 }
 
 main().catch((err) => {
