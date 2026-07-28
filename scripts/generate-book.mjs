@@ -135,6 +135,11 @@ const orderedParts = PART_ORDER.map((name) => ({ name, articles: byPart.get(name
     articles: part.articles,
   }));
 
+// Zahl der ursprünglichen Blog-Kategorien - erscheint als Kennzahl auf dem Cover.
+const categoryCount = new Set(
+  usedEntries.map((e) => (e.data.category ?? "").trim()).filter(Boolean),
+).size;
+
 console.log(`${usedEntries.length} Artikel in ${orderedParts.length} Teilen geladen.`);
 
 const today = new Date().toLocaleDateString("de-AT", { year: "numeric", month: "long", day: "numeric" });
@@ -196,13 +201,79 @@ const CSS = `
     color: #17211f; margin: 0; font-size: 10.8pt; line-height: 1.55;
     -webkit-font-feature-settings: "liga" 1, "kern" 1; font-kerning: normal; }
 
-  /* ---- Titelseite ---- */
-  .cover { page-break-after: always; text-align: center; padding-top: 58mm; }
-  .cover-rule { width: 30mm; height: 0.6mm; background: #b87a5b; margin: 0 auto; }
-  .cover h1 { font-size: 46pt; color: #2f6f68; margin: 10mm 0 3mm; font-weight: normal; letter-spacing: -1pt; }
-  .cover .cover-sub { font-size: 15pt; color: #17211f; margin: 0 0 14mm; font-style: italic; }
-  .cover p { font-size: 10.5pt; color: #53615d; margin: 2mm auto; max-width: 110mm; line-height: 1.6; }
-  .cover .cover-imprint { margin-top: 22mm; font-size: 9.5pt; color: #445049; }
+  /* ---- Titelseite: randlos über die volle A4-Fläche ----
+     Der Buchsatz hat Seitenränder (18/16/17/17mm); ein Cover, das bis an den
+     Papierrand läuft, ließe sich darin nicht unterbringen. Das Cover wird
+     deshalb separat mit Seitenrand 0 gerendert (renderCoverPdf) und danach
+     als Seite 1 in das Buch eingesetzt. Im Buchsatz selbst steht an dieser
+     Stelle nur eine Platzhalterseite, damit alle Seitenzahlen stimmen. */
+  .cover {
+    position: relative;
+    box-sizing: border-box;
+    width: 210mm;
+    height: 297mm;
+    margin: 0;
+    padding: 34mm 26mm 26mm;
+    background:
+      radial-gradient(80mm 80mm at 78% 84%, rgba(184,122,91,.30), transparent 70%),
+      linear-gradient(158deg, #12332e 0%, #1b4a42 46%, #2f6f68 100%);
+    color: #f4f1e9;
+    overflow: hidden;
+    page-break-after: always;
+    break-after: page;
+  }
+  /* Dekorative Kreise als ruhiges Fachbuch-Motiv (Anklang an die Wortmarke) */
+  .cover-motif {
+    position: absolute; right: -34mm; bottom: -40mm; width: 150mm; height: 150mm;
+    border-radius: 50%; border: 0.7mm solid rgba(244,241,233,.20);
+  }
+  .cover-motif::before, .cover-motif::after {
+    content: ""; position: absolute; border-radius: 50%; border: 0.7mm solid rgba(244,241,233,.16);
+  }
+  .cover-motif::before { inset: 17mm; }
+  .cover-motif::after { inset: 34mm; border-color: rgba(184,122,91,.55); }
+  /* Schmaler Akzentstreifen am Bund, wie bei einer Fachbuchreihe */
+  .cover-spine { position: absolute; left: 0; top: 0; bottom: 0; width: 9mm; background: #b87a5b; }
+  .cover-spine::after {
+    content: ""; position: absolute; left: 9mm; top: 0; bottom: 0; width: 1.2mm; background: rgba(244,241,233,.28);
+  }
+
+  .cover-inner { position: relative; display: flex; flex-direction: column; height: 100%; padding-left: 6mm; }
+  .cover-eyebrow {
+    font-size: 8.5pt; letter-spacing: 3.4pt; text-transform: uppercase;
+    color: rgba(244,241,233,.82); margin: 0 0 3mm;
+  }
+  .cover-rule { width: 26mm; height: 0.8mm; background: #d99a76; margin: 0 0 12mm; }
+  .cover h1 {
+    font-size: 68pt; line-height: .95; margin: 0 0 5mm; font-weight: normal;
+    letter-spacing: -2.2pt; color: #ffffff;
+  }
+  .cover .cover-sub {
+    font-size: 19pt; font-style: italic; color: #e9c9b4; margin: 0 0 9mm; letter-spacing: .2pt;
+  }
+  .cover .cover-desc {
+    font-size: 11.5pt; line-height: 1.62; color: rgba(244,241,233,.90);
+    margin: 0; max-width: 116mm;
+  }
+  .cover-spacer { flex: 1 1 auto; }
+  .cover-facts {
+    display: flex; gap: 14mm; padding: 6mm 0 7mm;
+    border-top: 0.3mm solid rgba(244,241,233,.30);
+    border-bottom: 0.3mm solid rgba(244,241,233,.30);
+    margin-bottom: 9mm;
+  }
+  .cover-fact-num { font-size: 21pt; color: #ffffff; line-height: 1; display: block; }
+  .cover-fact-lbl {
+    font-size: 8pt; letter-spacing: 1.6pt; text-transform: uppercase;
+    color: rgba(244,241,233,.72); display: block; margin-top: 1.6mm;
+  }
+  .cover-author { font-size: 15pt; color: #ffffff; margin: 0 0 1.5mm; }
+  .cover-pub {
+    font-size: 9pt; letter-spacing: 2.4pt; text-transform: uppercase;
+    color: rgba(244,241,233,.78); margin: 0;
+  }
+  /* Leere Seite 1 im Buchsatz; wird später durch das echte Cover ersetzt. */
+  .cover-placeholder { height: 1mm; page-break-after: always; break-after: page; }
 
   /* ---- Impressum / Über dieses Buch ---- */
   .frontmatter { page-break-after: always; padding-top: 24mm; font-size: 9.8pt; color: #445049;
@@ -313,6 +384,35 @@ const CSS2 = `
   .art-body pre { white-space: pre-wrap; word-wrap: break-word; font-size: 8pt; text-align: left; }
 `;
 
+// Eigenständiges, randloses Cover-Dokument (wird mit Seitenrand 0 gerendert).
+function buildCoverHtml() {
+  return `<!doctype html>
+<html lang="de"><head><meta charset="utf-8" /><style>${CSS}</style></head>
+<body>
+  <div class="cover">
+    <div class="cover-spine"></div>
+    <div class="cover-motif"></div>
+    <div class="cover-inner">
+      <p class="cover-eyebrow">Counselorakademie · Archivausgabe</p>
+      <div class="cover-rule"></div>
+      <h1>psycast</h1>
+      <p class="cover-sub">Das Archiv-Buch</p>
+      <p class="cover-desc">Gesammelte Beiträge zu Lebens- und Sozialberatung,
+      Mentaltraining, Mediation, Supervision und Psychoedukation — als
+      zusammenhängendes Nachschlagewerk gegliedert.</p>
+      <div class="cover-spacer"></div>
+      <div class="cover-facts">
+        <div><span class="cover-fact-num">${usedEntries.length}</span><span class="cover-fact-lbl">Beiträge</span></div>
+        <div><span class="cover-fact-num">${orderedParts.length}</span><span class="cover-fact-lbl">Teile</span></div>
+        <div><span class="cover-fact-num">${categoryCount}</span><span class="cover-fact-lbl">Themenfelder</span></div>
+      </div>
+      <p class="cover-author">Thomas Laggner</p>
+      <p class="cover-pub">Counselorakademie</p>
+    </div>
+  </div>
+</body></html>`;
+}
+
 function buildHtml(pageNo) {
   const contentHtml = orderedParts
     .map(
@@ -324,14 +424,7 @@ function buildHtml(pageNo) {
   return `<!doctype html>
 <html lang="de"><head><meta charset="utf-8" /><style>${CSS}${CSS2}</style></head>
 <body>
-  <div class="cover">
-    <div class="cover-rule"></div>
-    <h1>psycast</h1>
-    <p class="cover-sub">Das Archiv-Buch</p>
-    <p>${usedEntries.length} Beiträge aus dem Blog der Counselorakademie,
-    gegliedert in ${orderedParts.length} thematische Teile</p>
-    <p class="cover-imprint">Thomas Laggner · Counselorakademie</p>
-  </div>
+  <div class="cover-placeholder"></div>
   <div class="frontmatter">
     <h2>Über dieses Buch</h2>
     <p>Dieses Buch fasst alle ${usedEntries.length} Artikel des psycast-Archivs zusammen, das seinerseits
@@ -376,6 +469,47 @@ async function renderPdf(html, htmlPath, pdfPath) {
     footerTemplate: `<div style="font-size:8.5px;width:100%;text-align:center;color:#7d8a85;font-family:Georgia,serif;letter-spacing:0.5px;"><span class="pageNumber"></span></div>`,
   });
   await browser.close();
+}
+
+// Cover separat rendern: Seitenrand 0 und keine Kopf-/Fußzeile, damit die
+// Farbfläche bis an den Papierrand läuft und keine Seitenzahl darauf liegt.
+async function renderCoverPdf(htmlPath, pdfPath) {
+  writeFileSync(htmlPath, buildCoverHtml(), "utf8");
+  const browser = await puppeteer.launch({
+    executablePath: CHROME_PATH,
+    headless: true,
+    protocolTimeout: 0,
+  });
+  const page = await browser.newPage();
+  page.setDefaultTimeout(0);
+  await page.goto(`file://${htmlPath}`, { waitUntil: "networkidle0", timeout: 0 });
+  await page.pdf({
+    path: pdfPath,
+    timeout: 0,
+    format: "a4",
+    printBackground: true,
+    displayHeaderFooter: false,
+    margin: { top: "0mm", bottom: "0mm", left: "0mm", right: "0mm" },
+  });
+  await browser.close();
+}
+
+// Platzhalterseite 1 des Buchsatzes durch die gerenderte Coverseite ersetzen.
+// Die Seitenanzahl bleibt dabei unverändert, deshalb stimmen die im Messlauf
+// ermittelten Seitenzahlen des Inhaltsverzeichnisses weiterhin.
+async function replaceFirstPageWithCover(bookPath, coverPath) {
+  const { PDFDocument } = await import("pdf-lib");
+  const book = await PDFDocument.load(readFileSync(bookPath));
+  const cover = await PDFDocument.load(readFileSync(coverPath));
+
+  const out = await PDFDocument.create();
+  const [coverPage] = await out.copyPages(cover, [0]);
+  out.addPage(coverPage);
+  const rest = await out.copyPages(book, book.getPageIndices().slice(1));
+  for (const page of rest) out.addPage(page);
+
+  writeFileSync(bookPath, await out.save());
+  return out.getPageCount();
 }
 
 // Typografische Ligaturen zurück in Einzelbuchstaben übersetzen. Ohne das
@@ -468,6 +602,20 @@ async function main() {
     return;
   }
   console.log(`Vollständigkeit geprüft: alle ${seq.length} Abschnitte sind im PDF enthalten.`);
+
+  console.log("Cover wird gesetzt...");
+  const coverPdf = path.join(tmpDir, "cover.pdf");
+  await renderCoverPdf(path.join(tmpDir, "cover.html"), coverPdf);
+  const pagesAfter = await replaceFirstPageWithCover(outPath, coverPdf);
+  if (pagesAfter !== final.numPages) {
+    console.error(
+      `FEHLER: Seitenzahl hat sich beim Einsetzen des Covers geändert ` +
+        `(${final.numPages} -> ${pagesAfter}). Die Seitenzahlen im Inhaltsverzeichnis wären falsch.`,
+    );
+    process.exitCode = 1;
+    return;
+  }
+  console.log(`Cover eingesetzt. Fertig: ${pagesAfter} Seiten.`);
 }
 
 main().catch((err) => {
