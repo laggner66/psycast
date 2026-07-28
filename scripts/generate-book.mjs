@@ -372,7 +372,10 @@ const CSS2 = `
   /* Artikelkopf über voller Breite, farbig hinterlegt: gibt jedem Beitrag
      einen klaren, ruhigen Anfang und hilft beim Blättern. */
   .art-head {
-    break-after: avoid-page;
+    /* "avoid" statt "avoid-page": gilt auch für Spaltenumbrüche, nicht nur für
+       Seiten. Sonst landet ein Artikelkopf am Spalten- oder Seitenfuß und der
+       Text beginnt erst darüber hinaus. */
+    break-after: avoid;
     page-break-after: avoid;
     break-inside: avoid;
     background: linear-gradient(90deg, #eef3f1 0%, #f7f5f0 78%, #ffffff 100%);
@@ -404,15 +407,23 @@ const CSS2 = `
     widows: 3;
   }
   .art-body > :first-child { margin-top: 0; }
+  /* Der Anfangsabsatz darf nicht als Zweizeiler am Seitenfuß hängen bleiben:
+     passen keine 4 Zeilen mehr, rückt er samt Initial und Artikelkopf auf die
+     nächste Seite. Das kostet etwas Weißraum, verhindert aber angerissene
+     Artikelanfänge. */
+  .art-body > p:first-of-type { orphans: 4; widows: 4; }
   /* Initial im ersten Absatz jedes Artikels - in Terrakotta als Farbakzent */
   .art-body > p:first-of-type::first-letter {
     float: left; font-size: 27pt; line-height: 0.86; color: #a8623f;
     padding: 0.6mm 1.4mm 0 0; font-weight: normal;
   }
-  /* Zwischentitel niemals im Blocksatz - sonst reißen die Wortabstände auf. */
+  /* Zwischentitel niemals im Blocksatz - sonst reißen die Wortabstände auf.
+     "break-after: avoid" verhindert außerdem, dass eine Überschrift allein am
+     Spalten- oder Seitenfuß stehen bleibt; sie wandert dann mit ihrem Text mit. */
   .art-body h2, .art-body h3, .art-body h4, .art-body h5, .art-body h6 {
     text-align: left; hyphens: none; -webkit-hyphens: none;
-    break-after: avoid-page; page-break-after: avoid; }
+    break-after: avoid; page-break-after: avoid;
+    break-inside: avoid; page-break-inside: avoid; }
   /* Erste Gliederungsebene mit farbiger Unterlegung, zweite mit Akzentstrich */
   .art-body h2 {
     font-size: 11pt; color: #12332e; margin: 5mm 0 2mm; font-weight: bold;
@@ -425,9 +436,10 @@ const CSS2 = `
   }
   .art-body h4 { font-size: 9.6pt; color: #a8623f; margin: 3.5mm 0 1mm; font-weight: bold; }
   .art-body h5, .art-body h6 { font-size: 9.4pt; color: #4a5a55; margin: 3mm 0 1mm; font-weight: bold; }
-  .art-body p { margin: 0 0 2.4mm; }
+  .art-body p { margin: 0 0 2.4mm; orphans: 3; widows: 3; }
   .art-body ul, .art-body ol { margin: 0 0 2.4mm; padding-left: 5mm; text-align: left; }
-  .art-body li { margin-bottom: 0.9mm; }
+  /* Einzelne Listenpunkte nie über einen Spalten- oder Seitenwechsel zerreißen. */
+  .art-body li { margin-bottom: 0.9mm; break-inside: avoid; page-break-inside: avoid; }
   /* Farbige Aufzählungspunkte statt schwarzer Standardpunkte */
   .art-body ul { list-style: none; padding-left: 4.5mm; }
   .art-body ul > li { position: relative; padding-left: 3mm; }
