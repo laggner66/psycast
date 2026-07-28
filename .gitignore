@@ -34,3 +34,5 @@ pnpm-debug.log*
 
 # Local Netlify folder
 .netlify
+.book-preview/
+dist-fresh/

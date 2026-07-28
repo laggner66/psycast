@@ -1,93 +1,605 @@
 ---
+import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { slugify } from "../lib/slugify.js";
+
+const SITE = "https://psycast.netlify.app";
+const articles = await getCollection("articles");
+
+// ---------------------------------------------------------------------------
+// Inhaltsstatistik: wird beim Build berechnet und fest in die Seite gebacken.
+// Dafür braucht es keine Tracking-Infrastruktur - die Zahlen stimmen sofort.
+// ---------------------------------------------------------------------------
+const total = articles.length;
+const publicCount = articles.filter((a) => a.data.access === "public").length;
+const gatedCount = total - publicCount;
+
+const categoryRows = [...articles.reduce((map, a) => {
+  const key = a.data.category || "Ohne Kategorie";
+  map.set(key, (map.get(key) ?? 0) + 1);
+  return map;
+}, new Map<string, number>())]
+  .map(([category, count]) => ({ category, count, slug: slugify(category) }))
+  .sort((a, b) => b.count - a.count);
+
+const yearRows = [...articles.reduce((map, a) => {
+  if (!a.data.publishDate) return map;
+  const year = new Date(a.data.publishDate).getFullYear();
+  if (!Number.isFinite(year)) return map;
+  map.set(year, (map.get(year) ?? 0) + 1);
+  return map;
+}, new Map<number, number>())]
+  .map(([year, count]) => ({ year, count }))
+  .sort((a, b) => a.year - b.year);
+
+const maxYear = Math.max(1, ...yearRows.map((r) => r.count));
+const maxCategory = Math.max(1, ...categoryRows.map((r) => r.count));
+
+// Lesezeit ("4 Min.") in Minuten parsen, um eine Gesamtlesedauer zu zeigen.
+const minutes = articles
+  .map((a) => Number.parseInt(String(a.data.readingTime ?? "").replace(/\D+/gu, ""), 10))
+  .filter((n) => Number.isFinite(n) && n > 0);
+const totalMinutes = minutes.reduce((sum, n) => sum + n, 0);
+const avgMinutes = minutes.length ? Math.round(totalMinutes / minutes.length) : 0;
+
+const withDate = articles.filter((a) => a.data.publishDate);
+const sortedByDate = [...withDate].sort(
+  (a, b) => new Date(b.data.publishDate!).getTime() - new Date(a.data.publishDate!).getTime(),
+);
+const newest = sortedByDate[0];
+const oldest = sortedByDate[sortedByDate.length - 1];
+
+const tagCount = new Set(articles.flatMap((a) => a.data.tags ?? [])).size;
+const untagged = articles.filter((a) => (a.data.tags ?? []).length === 0).length;
+const missingDate = total - withDate.length;
+
+function fmtDate(value?: string) {
+  if (!value) return "–";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "–" : date.toLocaleDateString("de-AT");
+}
+
+// ---------------------------------------------------------------------------
+// Daten für den Social-Media-Generator (clientseitig weiterverarbeitet).
+// ---------------------------------------------------------------------------
+const socialData = [...articles]
+  .sort((a, b) => (a.data.title ?? "").localeCompare(b.data.title ?? "", "de"))
+  .map((a) => ({
+    slug: a.id,
+    title: a.data.title,
+    category: a.data.category,
+    excerpt: a.data.excerpt,
+    tags: a.data.tags ?? [],
+    access: a.data.access,
+    readingTime: a.data.readingTime ?? "",
+    url: `${SITE}/artikel/${a.id}`,
+  }));
 ---
 <BaseLayout
   title="Admin — psycast"
-  description="Verwaltung freigeschalteter E-Mail-Adressen."
+  description="Statistik, Zugänge und Social-Media-Texte."
   noindex
 >
-  <article class="admin">
-    <h1>Zugänge verwalten</h1>
-    <p>
-      Admin-Key wird nur lokal im Browser verwendet, um die Funktionen
-      aufzurufen — er wird nirgends gespeichert.
-    </p>
-    <label for="admin-key">Admin-Key</label>
-    <input type="password" id="admin-key" autocomplete="off" />
+  <div class="admin">
+    <header class="admin-head">
+      <p class="eyebrow">Interner Bereich</p>
+      <h1>Admin &amp; Statistik</h1>
+      <p class="lede">
+        Inhaltsstatistik, Verwaltung der freigeschalteten Zugänge und fertige
+        Social-Media-Texte für einzelne Artikel.
+      </p>
+    </header>
 
-    <div class="row">
-      <input type="email" id="new-email" placeholder="email@beispiel.at" />
-      <button id="approve-btn">Freischalten</button>
-      <button id="revoke-btn" class="secondary">Entfernen</button>
-    </div>
-    <p id="admin-status" role="status"></p>
+    <nav class="tabs" role="tablist">
+      <button role="tab" class="tab is-active" data-panel="panel-stats" aria-selected="true">Statistik</button>
+      <button role="tab" class="tab" data-panel="panel-guests" aria-selected="false">Zugänge</button>
+      <button role="tab" class="tab" data-panel="panel-social" aria-selected="false">Social Media</button>
+    </nav>
 
-    <button id="refresh-btn" class="secondary">Liste laden</button>
-    <ul id="email-list"></ul>
-  </article>
+    <!-- ================= STATISTIK ================= -->
+    <section id="panel-stats" class="panel" role="tabpanel">
+      <div class="kpi-grid">
+        <article class="kpi">
+          <h2>Artikel</h2>
+          <div class="metric">{total}</div>
+          <p>im Archiv insgesamt</p>
+        </article>
+        <article class="kpi">
+          <h2>Frei lesbar</h2>
+          <div class="metric">{publicCount}</div>
+          <p>{total ? Math.round((publicCount / total) * 100) : 0} % als Kostprobe öffentlich</p>
+        </article>
+        <article class="kpi">
+          <h2>Nur für Gäste</h2>
+          <div class="metric">{gatedCount}</div>
+          <p>{total ? Math.round((gatedCount / total) * 100) : 0} % hinter dem Login</p>
+        </article>
+        <article class="kpi">
+          <h2>Kategorien</h2>
+          <div class="metric">{categoryRows.length}</div>
+          <p>{tagCount} verschiedene Tags</p>
+        </article>
+        <article class="kpi">
+          <h2>Lesezeit</h2>
+          <div class="metric">{Math.round(totalMinutes / 60)} h</div>
+          <p>Ø {avgMinutes} Min. pro Artikel</p>
+        </article>
+        <article class="kpi">
+          <h2>Zugänge</h2>
+          <div class="metric" id="guest-kpi">–</div>
+          <p>freigeschaltete Adressen <button class="inline-link" id="guest-kpi-load" type="button">laden</button></p>
+        </article>
+      </div>
+
+      <div class="two-col">
+        <section class="card">
+          <h2>Artikel pro Kategorie</h2>
+          <ul class="bars">
+            {categoryRows.map(({ category, count, slug }) => (
+              <li>
+                <a class="bar-label" href={`/kategorie/${slug}`}>{category}</a>
+                <span class="bar"><span style={`width:${(count / maxCategory) * 100}%`}></span></span>
+                <b>{count}</b>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section class="card">
+          <h2>Artikel pro Jahr</h2>
+          {yearRows.length === 0 ? (
+            <p class="empty">Keine Artikel mit Veröffentlichungsdatum.</p>
+          ) : (
+            <ul class="bars">
+              {yearRows.map(({ year, count }) => (
+                <li>
+                  <span class="bar-label">{year}</span>
+                  <span class="bar"><span style={`width:${(count / maxYear) * 100}%`}></span></span>
+                  <b>{count}</b>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <h2 class="mt">Datenqualität</h2>
+          <ul class="facts">
+            <li><b>{missingDate}</b> Artikel ohne Veröffentlichungsdatum</li>
+            <li><b>{untagged}</b> Artikel ohne Tags</li>
+            <li>Neuester Beitrag: <b>{fmtDate(newest?.data.publishDate)}</b></li>
+            <li>Ältester Beitrag: <b>{fmtDate(oldest?.data.publishDate)}</b></li>
+          </ul>
+        </section>
+      </div>
+
+      <p class="note">
+        Diese Zahlen beschreiben den <strong>Inhalt</strong> des Archivs und werden bei
+        jedem Deploy neu berechnet. Besucherzahlen (Seitenaufrufe, Herkunft, Geräte)
+        werden auf psycast derzeit <strong>nicht</strong> gemessen — dafür wäre eine
+        eigene Mess-Schnittstelle nötig, wie sie auf vitalstrategie.at läuft.
+      </p>
+    </section>
+
+    <!-- ================= ZUGÄNGE ================= -->
+    <section id="panel-guests" class="panel" hidden role="tabpanel">
+      <section class="card">
+        <h2>Admin-Key</h2>
+        <p class="hint">
+          Wird nur im Browser verwendet, um die Admin-Funktionen aufzurufen, und
+          nirgends gespeichert.
+        </p>
+        <input type="password" id="admin-key" autocomplete="off" placeholder="Admin-Key" />
+
+        <div class="row">
+          <input type="email" id="new-email" placeholder="email@beispiel.at" />
+          <button id="approve-btn" type="button">Freischalten</button>
+          <button id="revoke-btn" class="secondary" type="button">Entfernen</button>
+        </div>
+        <p id="admin-status" class="status" role="status"></p>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Freigeschaltete Zugänge</h2>
+          <button id="refresh-btn" class="secondary" type="button">Liste laden</button>
+        </div>
+        <div class="table-wrap">
+          <table id="guest-table">
+            <thead>
+              <tr><th>E-Mail</th><th>Freigeschaltet am</th><th>Seit</th><th></th></tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="4" class="empty">Noch nicht geladen.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="hint">
+          Die Sitzung eines Gastes läuft 30 Tage nach dem Anklicken des
+          Anmeldelinks ab; die Freischaltung selbst bleibt bestehen, bis sie hier
+          entfernt wird.
+        </p>
+      </section>
+    </section>
+
+    <!-- ================= SOCIAL MEDIA ================= -->
+    <section id="panel-social" class="panel" hidden role="tabpanel">
+      <section class="card">
+        <h2>Artikel auswählen</h2>
+        <p class="hint">
+          Suche nach Titel oder Kategorie, wähle einen Artikel und kopiere den
+          fertigen Beitragstext für das jeweilige Netzwerk.
+        </p>
+        <input type="search" id="social-search" placeholder="Artikel suchen …" />
+        <select id="social-select" size="10"></select>
+        <p class="hint" id="social-count"></p>
+      </section>
+
+      <section class="card" id="social-output" hidden>
+        <div class="card-head">
+          <h2 id="social-title">–</h2>
+          <a id="social-link" class="inline-link" href="#" target="_blank" rel="noopener noreferrer">Artikel öffnen</a>
+        </div>
+        <p class="hint" id="social-meta"></p>
+
+        <div class="net-grid">
+          <article class="net">
+            <div class="net-head"><h3>LinkedIn</h3><button class="copy" type="button" data-copy="out-linkedin">Kopieren</button></div>
+            <textarea id="out-linkedin" rows="9" readonly></textarea>
+          </article>
+          <article class="net">
+            <div class="net-head"><h3>Facebook</h3><button class="copy" type="button" data-copy="out-facebook">Kopieren</button></div>
+            <textarea id="out-facebook" rows="9" readonly></textarea>
+          </article>
+          <article class="net">
+            <div class="net-head"><h3>X / Twitter</h3><button class="copy" type="button" data-copy="out-x">Kopieren</button></div>
+            <textarea id="out-x" rows="6" readonly></textarea>
+            <p class="hint"><span id="x-count">0</span>/280 Zeichen</p>
+          </article>
+          <article class="net">
+            <div class="net-head"><h3>Instagram / Threads</h3><button class="copy" type="button" data-copy="out-instagram">Kopieren</button></div>
+            <textarea id="out-instagram" rows="9" readonly></textarea>
+          </article>
+        </div>
+
+        <div class="share-row">
+          <span class="hint">Direkt teilen:</span>
+          <a id="share-linkedin" class="share-btn" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a id="share-facebook" class="share-btn" target="_blank" rel="noopener noreferrer">Facebook</a>
+          <a id="share-x" class="share-btn" target="_blank" rel="noopener noreferrer">X</a>
+        </div>
+      </section>
+    </section>
+  </div>
+
+  <script type="application/json" id="social-data" set:html={JSON.stringify(socialData)}></script>
 
   <script>
+    // ---------------- Tabs ----------------
+    const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>(".tab"));
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        tabs.forEach((t) => {
+          const target = document.getElementById(t.dataset.panel!);
+          const active = t === tab;
+          t.classList.toggle("is-active", active);
+          t.setAttribute("aria-selected", String(active));
+          if (target) target.hidden = !active;
+        });
+      });
+    });
+
+    // ---------------- Zugänge ----------------
     const keyInput = document.getElementById("admin-key") as HTMLInputElement;
     const emailInput = document.getElementById("new-email") as HTMLInputElement;
     const status = document.getElementById("admin-status")!;
-    const list = document.getElementById("email-list")!;
+    const tableBody = document.querySelector("#guest-table tbody")!;
+    const guestKpi = document.getElementById("guest-kpi")!;
 
-    async function call(path: string, opts: RequestInit) {
-      const res = await fetch(path, opts);
-      return res.json();
+    function setStatus(text: string, kind = "info") {
+      status.textContent = text;
+      status.dataset.kind = kind;
     }
 
-    document.getElementById("approve-btn")?.addEventListener("click", async () => {
-      const data = await call("/api/admin-approve", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: emailInput.value, adminKey: keyInput.value }),
-      });
-      status.textContent = data.message;
-    });
+    async function api(path: string, opts: RequestInit) {
+      const res = await fetch(path, opts);
+      return res.json().catch(() => ({ message: "Unerwartete Antwort vom Server." }));
+    }
 
-    document.getElementById("revoke-btn")?.addEventListener("click", async () => {
-      const data = await call("/api/admin-approve", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: emailInput.value, adminKey: keyInput.value, action: "revoke" }),
-      });
-      status.textContent = data.message;
-    });
+    function daysSince(iso?: string) {
+      if (!iso) return "–";
+      const then = new Date(iso).getTime();
+      if (Number.isNaN(then)) return "–";
+      const days = Math.floor((Date.now() - then) / 86400000);
+      return days <= 0 ? "heute" : days === 1 ? "1 Tag" : `${days} Tage`;
+    }
 
-    document.getElementById("refresh-btn")?.addEventListener("click", async () => {
-      const data = await call(
-        `/api/admin-list?adminKey=${encodeURIComponent(keyInput.value)}`,
-        { method: "GET" }
-      );
-      if (data.entries) {
-        list.innerHTML = data.entries
-          .map((e: { email: string; approvedAt?: string }) => `<li>${e.email} <span>${e.approvedAt ?? ""}</span></li>`)
-          .join("");
-      } else {
-        status.textContent = data.message ?? "Fehler beim Laden.";
+    function fmt(iso?: string) {
+      if (!iso) return "–";
+      const d = new Date(iso);
+      return Number.isNaN(d.getTime()) ? "–" : d.toLocaleString("de-AT");
+    }
+
+    type Entry = { email: string; approvedAt?: string };
+
+    function renderGuests(entries: Entry[]) {
+      guestKpi.textContent = String(entries.length);
+      if (!entries.length) {
+        tableBody.innerHTML = '<tr><td colspan="4" class="empty">Noch keine freigeschalteten Adressen.</td></tr>';
+        return;
       }
+      const sorted = [...entries].sort((a, b) => (b.approvedAt ?? "").localeCompare(a.approvedAt ?? ""));
+      tableBody.innerHTML = sorted
+        .map((e) => {
+          const safe = e.email.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+          return `<tr><td>${safe}</td><td>${fmt(e.approvedAt)}</td><td>${daysSince(e.approvedAt)}</td>` +
+            `<td><button class="link-danger" type="button" data-revoke="${safe}">entfernen</button></td></tr>`;
+        })
+        .join("");
+    }
+
+    async function loadGuests() {
+      if (!keyInput.value) {
+        setStatus("Bitte zuerst den Admin-Key eingeben.", "error");
+        document.querySelector<HTMLButtonElement>('.tab[data-panel="panel-guests"]')?.click();
+        keyInput.focus();
+        return;
+      }
+      setStatus("Liste wird geladen …");
+      const data = await api(`/api/admin-list?adminKey=${encodeURIComponent(keyInput.value)}`, { method: "GET" });
+      if (Array.isArray(data.entries)) {
+        renderGuests(data.entries);
+        setStatus(`${data.entries.length} Zugänge geladen.`, "success");
+      } else {
+        setStatus(data.message ?? "Fehler beim Laden.", "error");
+      }
+    }
+
+    async function mutate(email: string, action?: string) {
+      if (!keyInput.value) return setStatus("Bitte zuerst den Admin-Key eingeben.", "error");
+      if (!email) return setStatus("Bitte eine E-Mail-Adresse angeben.", "error");
+      const data = await api("/api/admin-approve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, adminKey: keyInput.value, action }),
+      });
+      setStatus(data.message ?? "Fertig.", "success");
+      await loadGuests();
+    }
+
+    document.getElementById("approve-btn")?.addEventListener("click", () => mutate(emailInput.value));
+    document.getElementById("revoke-btn")?.addEventListener("click", () => mutate(emailInput.value, "revoke"));
+    document.getElementById("refresh-btn")?.addEventListener("click", loadGuests);
+    document.getElementById("guest-kpi-load")?.addEventListener("click", loadGuests);
+    tableBody.addEventListener("click", (event) => {
+      const btn = (event.target as HTMLElement).closest<HTMLButtonElement>("[data-revoke]");
+      if (!btn) return;
+      const email = btn.dataset.revoke!;
+      if (confirm(`Zugang für ${email} wirklich entfernen?`)) mutate(email, "revoke");
     });
+
+    // ---------------- Social Media ----------------
+    type Article = {
+      slug: string; title: string; category: string; excerpt: string;
+      tags: string[]; access: string; readingTime: string; url: string;
+    };
+
+    const all: Article[] = JSON.parse(document.getElementById("social-data")!.textContent || "[]");
+    const search = document.getElementById("social-search") as HTMLInputElement;
+    const select = document.getElementById("social-select") as HTMLSelectElement;
+    const countEl = document.getElementById("social-count")!;
+    const output = document.getElementById("social-output") as HTMLElement;
+
+    function hashtags(a: Article) {
+      const words = [a.category, ...a.tags]
+        .filter(Boolean)
+        .map((w) => "#" + w.replace(/[^\p{L}\p{N}]+/gu, ""))
+        .filter((w) => w.length > 2);
+      const base = ["#Lebensberatung", "#Counselorakademie", "#psycast"];
+      return [...new Set([...words, ...base])].slice(0, 6).join(" ");
+    }
+
+    function trim(text: string, max: number) {
+      const clean = text.replace(/\s+/gu, " ").trim();
+      if (clean.length <= max) return clean;
+      return clean.slice(0, max - 1).replace(/[\s,;:.!?-]+\S*$/u, "") + "…";
+    }
+
+    function fillTexts(a: Article) {
+      const tags = hashtags(a);
+      const teaser = trim(a.excerpt, 320);
+      const shortTeaser = trim(a.excerpt, 150);
+      const note = a.access === "gated" ? "\n\nDer vollständige Beitrag steht eingeladenen Gästen im Archiv zur Verfügung." : "";
+
+      (document.getElementById("out-linkedin") as HTMLTextAreaElement).value =
+        `${a.title}\n\n${teaser}${note}\n\nZum Beitrag: ${a.url}\n\n${tags}`;
+
+      (document.getElementById("out-facebook") as HTMLTextAreaElement).value =
+        `${a.title}\n\n${teaser}\n\n👉 ${a.url}\n\n${tags}`;
+
+      const xText = `${trim(a.title, 90)}\n\n${trim(a.excerpt, 100)}\n\n${a.url}`;
+      const xArea = document.getElementById("out-x") as HTMLTextAreaElement;
+      xArea.value = xText;
+      document.getElementById("x-count")!.textContent = String(xText.length);
+
+      (document.getElementById("out-instagram") as HTMLTextAreaElement).value =
+        `${a.title}\n\n${shortTeaser}\n\nMehr dazu über den Link im Profil — oder direkt: ${a.url}\n\n${tags}`;
+
+      document.getElementById("social-title")!.textContent = a.title;
+      const link = document.getElementById("social-link") as HTMLAnchorElement;
+      link.href = a.url;
+      document.getElementById("social-meta")!.textContent =
+        [a.category, a.readingTime, a.access === "public" ? "frei lesbar" : "nur für Gäste"]
+          .filter(Boolean).join(" · ");
+
+      const enc = encodeURIComponent(a.url);
+      (document.getElementById("share-linkedin") as HTMLAnchorElement).href =
+        `https://www.linkedin.com/sharing/share-offsite/?url=${enc}`;
+      (document.getElementById("share-facebook") as HTMLAnchorElement).href =
+        `https://www.facebook.com/sharer/sharer.php?u=${enc}`;
+      (document.getElementById("share-x") as HTMLAnchorElement).href =
+        `https://twitter.com/intent/tweet?url=${enc}&text=${encodeURIComponent(trim(a.title, 90))}`;
+
+      output.hidden = false;
+    }
+
+    function renderOptions() {
+      const q = search.value.trim().toLowerCase();
+      const matches = q
+        ? all.filter((a) =>
+            a.title.toLowerCase().includes(q) ||
+            (a.category ?? "").toLowerCase().includes(q) ||
+            a.tags.some((t) => t.toLowerCase().includes(q)))
+        : all;
+      select.innerHTML = matches
+        .map((a) => {
+          const label = `${a.title}${a.access === "public" ? " · frei" : ""}`
+            .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+          return `<option value="${a.slug}">${label}</option>`;
+        })
+        .join("");
+      countEl.textContent = `${matches.length} von ${all.length} Artikeln`;
+    }
+
+    search.addEventListener("input", renderOptions);
+    select.addEventListener("change", () => {
+      const found = all.find((a) => a.slug === select.value);
+      if (found) fillTexts(found);
+    });
+
+    document.querySelectorAll<HTMLButtonElement>(".copy").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const area = document.getElementById(btn.dataset.copy!) as HTMLTextAreaElement;
+        try {
+          await navigator.clipboard.writeText(area.value);
+          const before = btn.textContent;
+          btn.textContent = "Kopiert ✓";
+          setTimeout(() => { btn.textContent = before; }, 1400);
+        } catch {
+          area.select();
+          btn.textContent = "Bitte mit Strg/Cmd+C kopieren";
+        }
+      });
+    });
+
+    renderOptions();
   </script>
 </BaseLayout>
 
 <style>
-  .admin { max-width: 60ch; }
-  .admin h1 { font-size: 1.6rem; }
-  .admin p { color: var(--grey); font-size: 0.9rem; }
-  label { display: block; margin-top: 1rem; font-size: 0.85rem; color: var(--grey); }
-  input {
-    padding: 0.5rem 0.7rem; border: 1px solid var(--border); border-radius: 6px;
-    font-size: 0.95rem; width: 100%; max-width: 320px; margin-top: 0.3rem;
+  .admin { max-width: 100%; }
+  .admin-head { margin-bottom: 1.5rem; }
+  .eyebrow {
+    text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.7rem;
+    font-weight: 700; color: var(--brown); margin: 0 0 0.4rem;
   }
-  .row { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; align-items: center; }
-  .row input { margin-top: 0; }
+  .admin-head h1 { font-size: 2rem; margin: 0 0 0.4rem; }
+  .lede { color: var(--grey); margin: 0; max-width: 62ch; }
+
+  .tabs { display: flex; gap: 0.4rem; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .tab {
+    background: none; border: none; border-bottom: 2px solid transparent;
+    padding: 0.6rem 0.9rem; font-size: 0.95rem; font-weight: 600;
+    color: var(--grey); cursor: pointer; font-family: inherit;
+  }
+  .tab:hover { color: var(--dark); }
+  .tab.is-active { color: var(--green-dark); border-bottom-color: var(--green); }
+
+  .kpi-grid {
+    display: grid; gap: 0.75rem; margin-bottom: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+  .kpi {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem;
+  }
+  .kpi h2 { font-size: 0.8rem; color: var(--grey); margin: 0; font-family: var(--font-body); font-weight: 600; }
+  .metric {
+    font-family: var(--font-display); font-size: 1.9rem; font-weight: 600;
+    color: var(--green-dark); line-height: 1.1; margin: 0.35rem 0 0.2rem;
+  }
+  .kpi p { font-size: 0.78rem; color: var(--grey); margin: 0; }
+
+  .two-col { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.25rem; margin-bottom: 0.75rem;
+  }
+  .card h2 { font-size: 1.05rem; margin: 0 0 0.9rem; }
+  .card h2.mt { margin-top: 1.5rem; }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.9rem; flex-wrap: wrap; }
+  .card-head h2 { margin: 0; }
+
+  .bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; }
+  .bars li { display: grid; grid-template-columns: minmax(90px, 1.3fr) 2fr auto; gap: 0.6rem; align-items: center; font-size: 0.85rem; }
+  .bar-label { color: var(--dark); text-decoration: none; overflow-wrap: anywhere; }
+  a.bar-label:hover { color: var(--green-dark); text-decoration: underline; }
+  .bar { display: block; height: 8px; border-radius: 4px; background: var(--bg); overflow: hidden; border: 1px solid var(--border); }
+  .bar span { display: block; height: 100%; background: var(--green); }
+  .bars b { font-variant-numeric: tabular-nums; color: var(--green-dark); font-size: 0.85rem; }
+
+  .facts { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; font-size: 0.85rem; color: var(--grey); }
+  .facts b { color: var(--dark); }
+
+  .note {
+    background: var(--green-light); border: 1px solid color-mix(in srgb, var(--green) 22%, var(--border));
+    border-radius: 10px; padding: 0.9rem 1.1rem; font-size: 0.85rem; color: var(--grey); margin-top: 0.75rem;
+  }
+  .note strong { color: var(--green-dark); }
+
+  .hint { font-size: 0.8rem; color: var(--grey); margin: 0 0 0.7rem; }
+  input, select {
+    padding: 0.6rem 0.75rem; border: 1px solid var(--border); border-radius: 8px;
+    font-size: 0.95rem; font-family: inherit; background: var(--bg); width: 100%; max-width: 380px;
+  }
+  select { max-width: 100%; margin-top: 0.6rem; }
+  input:focus, select:focus { border-color: var(--green); background: #fff; outline: none; }
+  .row { display: flex; gap: 0.5rem; margin-top: 0.8rem; flex-wrap: wrap; align-items: center; }
+  .row input { max-width: 260px; }
+
   button {
-    background: var(--green); color: #fff; border: none; border-radius: 6px;
-    padding: 0.55rem 0.9rem; cursor: pointer; font-size: 0.9rem;
+    background: var(--green); color: #fff; border: none; border-radius: 8px;
+    padding: 0.6rem 1rem; cursor: pointer; font-size: 0.9rem; font-weight: 600; font-family: inherit;
   }
-  button.secondary { background: var(--card); color: var(--dark); border: 1px solid var(--border); margin-top: 1rem; }
-  #email-list { list-style: none; padding: 0; margin-top: 1rem; }
-  #email-list li { padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; display: flex; justify-content: space-between; }
-  #email-list span { color: var(--grey); font-size: 0.8rem; }
+  button:hover { background: var(--green-dark); }
+  button.secondary { background: var(--bg); color: var(--dark); border: 1px solid var(--border); }
+  button.secondary:hover { background: var(--green-light); border-color: var(--green); }
+  .inline-link {
+    background: none; border: none; color: var(--green); font: inherit; font-size: inherit;
+    padding: 0; cursor: pointer; text-decoration: underline;
+  }
+  .link-danger {
+    background: none; border: none; color: #9c2f27; font: inherit; font-size: 0.82rem;
+    padding: 0; cursor: pointer; text-decoration: underline;
+  }
+  .link-danger:hover { background: none; color: #7a241a; }
+
+  .status { font-size: 0.85rem; margin: 0.8rem 0 0; min-height: 1.2em; }
+  .status[data-kind="error"] { color: #9c2f27; }
+  .status[data-kind="success"] { color: #1d5c2b; }
+
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th, td { text-align: left; padding: 0.6rem 0.7rem; border-bottom: 1px solid var(--border); }
+  th { background: var(--bg); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--grey); }
+  tbody tr:last-child td { border-bottom: none; }
+  .empty { color: var(--grey); text-align: center; padding: 1.2rem; }
+
+  .net-grid { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .net { border: 1px solid var(--border); border-radius: 10px; padding: 0.9rem; background: var(--bg); }
+  .net-head { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin-bottom: 0.6rem; }
+  .net h3 { margin: 0; font-size: 0.9rem; font-family: var(--font-body); color: var(--green-dark); }
+  .net .copy { padding: 0.35rem 0.7rem; font-size: 0.78rem; }
+  textarea {
+    width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.7rem;
+    font-family: inherit; font-size: 0.82rem; line-height: 1.5; background: var(--card);
+    color: var(--dark); resize: vertical;
+  }
+  .net .hint { margin: 0.4rem 0 0; }
+
+  .share-row { display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+  .share-row .hint { margin: 0; }
+  .share-btn {
+    display: inline-flex; align-items: center; border: 1px solid var(--border); border-radius: 999px;
+    padding: 0.4rem 0.9rem; font-size: 0.82rem; font-weight: 600; text-decoration: none; color: var(--dark);
+    background: var(--card);
+  }
+  .share-btn:hover { border-color: var(--green); color: var(--green-dark); background: var(--green-light); }
 </style>
